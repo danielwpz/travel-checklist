@@ -2,6 +2,9 @@
 
 
 import { useState } from 'react'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Plus } from 'lucide-react'
 
 interface AddItemFormProps {
   onAddItem: (text: string) => boolean
@@ -39,30 +42,24 @@ const AddItemForm = ({ onAddItem }: AddItemFormProps) => {
   }
 
   return (
-    <div className="mb-6">
-      <form onSubmit={handleSubmit} className="flex gap-2">
-        <div className="flex-1">
-          <input
+    <div className="space-y-2">
+      <form onSubmit={handleSubmit} className="flex gap-3">
+        <div className="flex-1 space-y-2">
+          <Input
             type="text"
             value={newItemText}
             onChange={handleInputChange}
-            placeholder="Add a new item..."
-            className={`w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 ${
-              error
-                ? 'border-red-300 focus:ring-red-500'
-                : 'border-gray-300 focus:ring-blue-500'
-            }`}
+            placeholder="Add a new travel item..."
+            className={`${error ? 'border-destructive focus-visible:ring-destructive' : ''}`}
           />
           {error && (
-            <p className="text-red-600 text-sm mt-1">{error}</p>
+            <p className="text-destructive text-sm">{error}</p>
           )}
         </div>
-        <button
-          type="submit"
-          className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
-        >
-          Add
-        </button>
+        <Button type="submit" className="px-6">
+          <Plus className="h-4 w-4 mr-2" />
+          Add Item
+        </Button>
       </form>
     </div>
   )

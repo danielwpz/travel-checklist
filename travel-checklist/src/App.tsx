@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { type ChecklistItem, DEFAULT_ITEMS } from './types'
 import TravelChecklist from './components/TravelChecklist'
+import { Luggage } from 'lucide-react'
 
 function App() {
   const [items, setItems] = useState<ChecklistItem[]>([])
@@ -38,11 +39,19 @@ function App() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="container mx-auto px-4 py-8 max-w-2xl">
-        <h1 className="text-3xl font-bold text-center text-gray-800 mb-8">
-          🧳 Travel Checklist
-        </h1>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
+      <div className="container mx-auto px-4 py-6 sm:py-8 max-w-4xl">
+        <div className="text-center mb-8">
+          <div className="flex items-center justify-center gap-3 mb-4">
+            <Luggage className="h-8 w-8 sm:h-10 sm:w-10 text-primary" />
+            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+              Travel Checklist
+            </h1>
+          </div>
+          <p className="text-muted-foreground text-sm sm:text-base max-w-2xl mx-auto">
+            Stay organized and never forget the essentials for your next adventure
+          </p>
+        </div>
         <TravelChecklist
           items={items}
           setItems={setItems}
