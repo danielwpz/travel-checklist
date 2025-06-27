@@ -1,0 +1,6 @@
+# pnpm store
+.pnpm-store/
+
+# OS generated files
+.DS_Store
+Thumbs.db
