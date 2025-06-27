@@ -39,24 +39,28 @@ function App() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
-      <div className="container mx-auto px-4 py-6 sm:py-8 max-w-4xl">
-        <div className="text-center mb-8">
-          <div className="flex items-center justify-center gap-3 mb-4">
-            <Luggage className="h-8 w-8 sm:h-10 sm:w-10 text-primary" />
-            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-              Travel Checklist
-            </h1>
+    <div className="min-vh-100" style={{ background: 'linear-gradient(135deg, #e3f2fd 0%, #ffffff 50%, #f3e5f5 100%)' }}>
+      <div className="container py-4 py-md-5">
+        <div className="row justify-content-center">
+          <div className="col-12 col-lg-10 col-xl-8">
+            <div className="text-center mb-5">
+              <div className="d-flex align-items-center justify-content-center gap-3 mb-4">
+                <Luggage className="text-primary" size={48} />
+                <h1 className="display-4 fw-bold text-primary mb-0">
+                  Travel Checklist
+                </h1>
+              </div>
+              <p className="lead text-muted">
+                Stay organized and never forget the essentials for your next adventure
+              </p>
+            </div>
+            <TravelChecklist
+              items={items}
+              setItems={setItems}
+              onReset={initializeDefaultItems}
+            />
           </div>
-          <p className="text-muted-foreground text-sm sm:text-base max-w-2xl mx-auto">
-            Stay organized and never forget the essentials for your next adventure
-          </p>
         </div>
-        <TravelChecklist
-          items={items}
-          setItems={setItems}
-          onReset={initializeDefaultItems}
-        />
       </div>
     </div>
   )

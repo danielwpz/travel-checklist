@@ -2,8 +2,6 @@
 
 
 import { useState } from 'react'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
 import { Plus } from 'lucide-react'
 
 interface AddItemFormProps {
@@ -42,24 +40,28 @@ const AddItemForm = ({ onAddItem }: AddItemFormProps) => {
   }
 
   return (
-    <div className="space-y-2">
-      <form onSubmit={handleSubmit} className="flex gap-3">
-        <div className="flex-1 space-y-2">
-          <Input
-            type="text"
-            value={newItemText}
-            onChange={handleInputChange}
-            placeholder="Add a new travel item..."
-            className={`${error ? 'border-destructive focus-visible:ring-destructive' : ''}`}
-          />
-          {error && (
-            <p className="text-destructive text-sm">{error}</p>
-          )}
+    <div className="mb-3">
+      <form onSubmit={handleSubmit}>
+        <div className="row g-2">
+          <div className="col">
+            <input
+              type="text"
+              className={`form-control ${error ? 'is-invalid' : ''}`}
+              value={newItemText}
+              onChange={handleInputChange}
+              placeholder="Add a new travel item..."
+            />
+            {error && (
+              <div className="invalid-feedback">{error}</div>
+            )}
+          </div>
+          <div className="col-auto">
+            <button type="submit" className="btn btn-primary">
+              <Plus size={16} className="me-2" />
+              Add Item
+            </button>
+          </div>
         </div>
-        <Button type="submit" className="px-6">
-          <Plus className="h-4 w-4 mr-2" />
-          Add Item
-        </Button>
       </form>
     </div>
   )

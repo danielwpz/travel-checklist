@@ -54,11 +54,15 @@ const ChecklistItemComponent = ({
 
   return (
     <div
-      className={`flex items-center gap-3 p-3 border rounded-lg transition-all duration-200 ${
+      className={`d-flex align-items-center gap-3 p-3 border rounded-3 ${
         item.checked
-          ? 'bg-green-50 border-green-200'
-          : 'bg-white border-gray-200 hover:border-gray-300'
-      } ${isDragging ? 'opacity-50' : ''} ${editMode ? 'cursor-move' : ''}`}
+          ? 'bg-success bg-opacity-10 border-success border-opacity-25'
+          : 'bg-white border-secondary border-opacity-25'
+      } ${isDragging ? 'opacity-50' : ''} ${editMode ? 'user-select-none' : ''}`}
+      style={{
+        transition: 'all 0.2s ease',
+        cursor: editMode ? 'move' : 'default'
+      }}
       draggable={editMode}
       onDragStart={(e) => editMode && onDragStart(e, item.id)}
       onDragOver={onDragOver}
@@ -66,21 +70,24 @@ const ChecklistItemComponent = ({
     >
       {/* Drag handle (only visible in edit mode) */}
       {editMode && (
-        <div className="text-gray-400 cursor-move">
+        <div className="text-muted" style={{ cursor: 'move', fontSize: '1.2rem' }}>
           ⋮⋮
         </div>
       )}
 
       {/* Checkbox */}
-      <input
-        type="checkbox"
-        checked={item.checked}
-        onChange={() => onToggle(item.id)}
-        className="w-5 h-5 text-green-600 bg-gray-100 border-gray-300 rounded focus:ring-green-500 focus:ring-2"
-      />
+      <div className="form-check">
+        <input
+          type="checkbox"
+          checked={item.checked}
+          onChange={() => onToggle(item.id)}
+          className="form-check-input"
+          style={{ transform: 'scale(1.2)' }}
+        />
+      </div>
 
       {/* Item text */}
-      <div className="flex-1">
+      <div className="flex-grow-1">
         {isEditing ? (
           <input
             type="text"
@@ -88,16 +95,17 @@ const ChecklistItemComponent = ({
             onChange={(e) => setEditText(e.target.value)}
             onBlur={handleEditSubmit}
             onKeyDown={handleKeyPress}
-            className="w-full px-2 py-1 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="form-control form-control-sm"
             autoFocus
           />
         ) : (
           <span
             className={`${
               item.checked
-                ? 'line-through text-gray-500'
-                : 'text-gray-800'
-            } ${editMode ? 'cursor-pointer' : ''}`}
+                ? 'text-decoration-line-through text-muted'
+                : 'text-dark'
+            } ${editMode ? 'user-select-none' : ''}`}
+            style={{ cursor: editMode ? 'pointer' : 'default' }}
             onClick={() => editMode && setIsEditing(true)}
           >
             {item.text}
@@ -107,18 +115,20 @@ const ChecklistItemComponent = ({
 
       {/* Edit/Delete buttons (only visible in edit mode) */}
       {editMode && !isEditing && (
-        <div className="flex gap-2">
+        <div className="d-flex gap-2">
           <button
             onClick={() => setIsEditing(true)}
-            className="text-blue-600 hover:text-blue-800 text-sm"
+            className="btn btn-sm btn-outline-primary"
             title="Edit item"
+            style={{ fontSize: '0.75rem', padding: '0.25rem 0.5rem' }}
           >
             ✏️
           </button>
           <button
             onClick={() => onDelete(item.id)}
-            className="text-red-600 hover:text-red-800 text-sm"
+            className="btn btn-sm btn-outline-danger"
             title="Delete item"
+            style={{ fontSize: '0.75rem', padding: '0.25rem 0.5rem' }}
           >
             🗑️
           </button>

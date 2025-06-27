@@ -3,10 +3,6 @@ import { useState } from 'react'
 import { type ChecklistItem } from '../types'
 import ChecklistItemComponent from './ChecklistItem'
 import AddItemForm from './AddItemForm'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Progress } from '@/components/ui/progress'
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { Edit3, RotateCcw, CheckCircle2 } from 'lucide-react'
 
 interface TravelChecklistProps {
@@ -97,75 +93,66 @@ const TravelChecklist = ({ items, setItems, onReset }: TravelChecklistProps) => 
   const totalCount = items.length
 
   return (
-    <Card className="w-full max-w-4xl mx-auto shadow-xl border-0 bg-white/80 backdrop-blur-sm">
-      <CardHeader className="pb-4">
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-          <div className="space-y-2">
-            <CardTitle className="flex items-center gap-2 text-xl sm:text-2xl">
-              <CheckCircle2 className="h-6 w-6 text-primary" />
+    <div className="card shadow-lg border-0" style={{ backgroundColor: 'rgba(255, 255, 255, 0.95)', backdropFilter: 'blur(10px)' }}>
+      <div className="card-header bg-transparent border-bottom-0 pb-2">
+        <div className="row align-items-center g-3">
+          <div className="col-12 col-md-8">
+            <h2 className="card-title d-flex align-items-center gap-2 mb-2 h4">
+              <CheckCircle2 className="text-primary" size={24} />
               Your Travel Checklist
-            </CardTitle>
-            <div className="flex items-center gap-4 text-sm text-muted-foreground">
+            </h2>
+            <div className="d-flex align-items-center gap-3 small text-muted">
               <span>Progress: {checkedCount}/{totalCount} items packed</span>
               {totalCount > 0 && (
-                <span className="text-primary font-medium">
+                <span className="text-primary fw-medium">
                   {Math.round((checkedCount / totalCount) * 100)}% complete
                 </span>
               )}
             </div>
           </div>
-          <div className="flex gap-2 w-full sm:w-auto">
-            <Button
-              onClick={() => setEditMode(!editMode)}
-              variant={editMode ? "default" : "outline"}
-              size="sm"
-              className="flex-1 sm:flex-none"
-            >
-              <Edit3 className="h-4 w-4 mr-2" />
-              {editMode ? 'Exit Edit' : 'Edit Mode'}
-            </Button>
-            <Dialog open={showResetDialog} onOpenChange={setShowResetDialog}>
-              <DialogTrigger asChild>
-                <Button variant="destructive" size="sm" className="flex-1 sm:flex-none">
-                  <RotateCcw className="h-4 w-4 mr-2" />
-                  Reset
-                </Button>
-              </DialogTrigger>
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle>Reset to Default Checklist</DialogTitle>
-                  <DialogDescription>
-                    Are you sure you want to reset to the default checklist? This will remove all custom items and uncheck all items. This action cannot be undone.
-                  </DialogDescription>
-                </DialogHeader>
-                <DialogFooter>
-                  <Button variant="outline" onClick={() => setShowResetDialog(false)}>
-                    Cancel
-                  </Button>
-                  <Button variant="destructive" onClick={handleReset}>
-                    Reset Checklist
-                  </Button>
-                </DialogFooter>
-              </DialogContent>
-            </Dialog>
+          <div className="col-12 col-md-4">
+            <div className="d-flex gap-2">
+              <button
+                onClick={() => setEditMode(!editMode)}
+                className={`btn btn-sm flex-fill ${editMode ? 'btn-primary' : 'btn-outline-primary'}`}
+              >
+                <Edit3 size={16} className="me-2" />
+                {editMode ? 'Exit Edit' : 'Edit Mode'}
+              </button>
+              <button
+                onClick={() => setShowResetDialog(true)}
+                className="btn btn-danger btn-sm flex-fill"
+              >
+                <RotateCcw size={16} className="me-2" />
+                Reset
+              </button>
+            </div>
           </div>
         </div>
 
         {/* Progress bar */}
-        <div className="mt-4">
-          <Progress
-            value={totalCount > 0 ? (checkedCount / totalCount) * 100 : 0}
-            className="h-3"
-          />
+        <div className="mt-3">
+          <div className="progress" style={{ height: '8px' }}>
+            <div
+              className="progress-bar bg-primary"
+              role="progressbar"
+              style={{ width: `${totalCount > 0 ? (checkedCount / totalCount) * 100 : 0}%` }}
+              aria-valuenow={totalCount > 0 ? (checkedCount / totalCount) * 100 : 0}
+              aria-valuemin={0}
+              aria-valuemax={100}
+            ></div>
+          </div>
         </div>
-      </CardHeader>
+      </div>
 
-      <CardContent className="space-y-6">
+      <div className="card-body">
         {/* Add item form */}
-        <AddItemForm onAddItem={addItem} />
+        <div className="mb-4">
+          <AddItemForm onAddItem={addItem} />
+        </div>
 
         {/* Checklist items */}
-        <div className="space-y-3">
+        <div className="d-flex flex-column gap-3">
           {items.map((item) => (
             <ChecklistItemComponent
               key={item.id}
@@ -183,14 +170,51 @@ const TravelChecklist = ({ items, setItems, onReset }: TravelChecklistProps) => 
         </div>
 
         {items.length === 0 && (
-          <div className="text-center text-muted-foreground py-12">
-            <CheckCircle2 className="h-12 w-12 mx-auto mb-4 opacity-50" />
-            <p className="text-lg font-medium mb-2">No items in your checklist</p>
-            <p className="text-sm">Add some items above to get started on your travel preparations!</p>
+          <div className="text-center text-muted py-5">
+            <CheckCircle2 size={48} className="mx-auto mb-3 opacity-50" />
+            <h5 className="mb-2">No items in your checklist</h5>
+            <p className="small">Add some items above to get started on your travel preparations!</p>
           </div>
         )}
-      </CardContent>
-    </Card>
+      </div>
+
+      {/* Bootstrap Modal for Reset Confirmation */}
+      {showResetDialog && (
+        <div className="modal fade show d-block" tabIndex={-1} style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
+          <div className="modal-dialog modal-dialog-centered">
+            <div className="modal-content">
+              <div className="modal-header">
+                <h5 className="modal-title">Reset to Default Checklist</h5>
+                <button
+                  type="button"
+                  className="btn-close"
+                  onClick={() => setShowResetDialog(false)}
+                ></button>
+              </div>
+              <div className="modal-body">
+                <p>Are you sure you want to reset to the default checklist? This will remove all custom items and uncheck all items. This action cannot be undone.</p>
+              </div>
+              <div className="modal-footer">
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  onClick={() => setShowResetDialog(false)}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  className="btn btn-danger"
+                  onClick={handleReset}
+                >
+                  Reset Checklist
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
   )
 }
 
