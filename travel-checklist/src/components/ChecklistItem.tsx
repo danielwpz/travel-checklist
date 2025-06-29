@@ -86,31 +86,41 @@ const ChecklistItemComponent = ({
         />
       </div>
 
-      {/* Item text */}
-      <div className="flex-grow-1">
-        {isEditing ? (
-          <input
-            type="text"
-            value={editText}
-            onChange={(e) => setEditText(e.target.value)}
-            onBlur={handleEditSubmit}
-            onKeyDown={handleKeyPress}
-            className="form-control form-control-sm"
-            autoFocus
-          />
-        ) : (
-          <span
-            className={`${
-              item.checked
-                ? 'text-decoration-line-through text-muted'
-                : 'text-dark'
-            } ${editMode ? 'user-select-none' : ''}`}
-            style={{ cursor: editMode ? 'pointer' : 'default' }}
-            onClick={() => editMode && setIsEditing(true)}
-          >
-            {item.text}
+      {/* Item icon and text */}
+      <div className="flex-grow-1 d-flex align-items-center gap-2">
+        {/* Icon */}
+        {item.icon && (
+          <span className="fs-5" style={{ minWidth: '1.5rem' }}>
+            {item.icon}
           </span>
         )}
+
+        {/* Text */}
+        <div className="flex-grow-1">
+          {isEditing ? (
+            <input
+              type="text"
+              value={editText}
+              onChange={(e) => setEditText(e.target.value)}
+              onBlur={handleEditSubmit}
+              onKeyDown={handleKeyPress}
+              className="form-control form-control-sm"
+              autoFocus
+            />
+          ) : (
+            <span
+              className={`${
+                item.checked
+                  ? 'text-decoration-line-through text-muted'
+                  : 'text-dark'
+              } ${editMode ? 'user-select-none' : ''}`}
+              style={{ cursor: editMode ? 'pointer' : 'default' }}
+              onClick={() => editMode && setIsEditing(true)}
+            >
+              {item.text}
+            </span>
+          )}
+        </div>
       </div>
 
       {/* Edit/Delete buttons (only visible in edit mode) */}
