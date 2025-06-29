@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { type ChecklistItem, DEFAULT_ITEMS } from './types'
 import TravelChecklist from './components/TravelChecklist'
 import { Luggage } from 'lucide-react'
+import { getIconForItem } from './lib/iconMatcher'
 
 function App() {
   const [items, setItems] = useState<ChecklistItem[]>([])
@@ -11,7 +12,13 @@ function App() {
     const savedItems = localStorage.getItem('travel-checklist-items')
     if (savedItems) {
       try {
-        setItems(JSON.parse(savedItems))
+        const parsedItems = JSON.parse(savedItems)
+        // Migrate old items that don't have icons
+        const itemsWithIcons = parsedItems.map((item: any) => ({
+          ...item,
+          icon: item.icon || getIconForItem(item.text)
+        }))
+        setItems(itemsWithIcons)
       } catch (error) {
         console.error('Error parsing saved items:', error)
         initializeDefaultItems()
@@ -33,7 +40,8 @@ function App() {
       id: `default-${index}`,
       text,
       checked: false,
-      isDefault: true
+      isDefault: true,
+      icon: getIconForItem(text)
     }))
     setItems(defaultItems)
   }

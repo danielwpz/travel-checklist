@@ -86,8 +86,11 @@ const ChecklistItemComponent = ({
         />
       </div>
 
-      {/* Item text */}
-      <div className="flex-grow-1">
+      {/* Item icon and text */}
+      <div className="flex-grow-1 d-flex align-items-center gap-2">
+        <span className="fs-5" style={{ minWidth: '1.5rem' }}>
+          {item.icon}
+        </span>
         {isEditing ? (
           <input
             type="text"
@@ -95,7 +98,7 @@ const ChecklistItemComponent = ({
             onChange={(e) => setEditText(e.target.value)}
             onBlur={handleEditSubmit}
             onKeyDown={handleKeyPress}
-            className="form-control form-control-sm"
+            className="form-control form-control-sm flex-grow-1"
             autoFocus
           />
         ) : (
@@ -104,7 +107,7 @@ const ChecklistItemComponent = ({
               item.checked
                 ? 'text-decoration-line-through text-muted'
                 : 'text-dark'
-            } ${editMode ? 'user-select-none' : ''}`}
+            } ${editMode ? 'user-select-none' : ''} flex-grow-1`}
             style={{ cursor: editMode ? 'pointer' : 'default' }}
             onClick={() => editMode && setIsEditing(true)}
           >

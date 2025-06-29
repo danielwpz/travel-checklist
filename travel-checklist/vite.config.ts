@@ -18,5 +18,10 @@ export default defineConfig({
     headers: {
       'X-Frame-Options': 'ALLOWALL'
     }
-  }
+  },
+  test: {
+    globals: true,
+    environment: 'jsdom',
+    setupFiles: ['./src/test-setup.ts'],
+  },
 })

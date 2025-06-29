@@ -29,7 +29,7 @@ describe('Travel Checklist App', () => {
 
   it('renders the travel checklist title', () => {
     render(<App />)
-    expect(screen.getByText('🧳 Travel Checklist')).toBeInTheDocument()
+    expect(screen.getByText('Travel Checklist')).toBeInTheDocument()
   })
 
   it('displays default items on first load', () => {
@@ -53,8 +53,8 @@ describe('Travel Checklist App', () => {
   it('can add a new item', () => {
     render(<App />)
 
-    const input = screen.getByPlaceholderText('Add a new item...')
-    const addButton = screen.getByText('Add')
+    const input = screen.getByPlaceholderText('Add a new travel item...')
+    const addButton = screen.getByText('Add Item')
 
     fireEvent.change(input, { target: { value: 'Camera' } })
     fireEvent.click(addButton)
@@ -86,8 +86,8 @@ describe('Travel Checklist App', () => {
   it('prevents adding duplicate items', () => {
     render(<App />)
 
-    const input = screen.getByPlaceholderText('Add a new item...')
-    const addButton = screen.getByText('Add')
+    const input = screen.getByPlaceholderText('Add a new travel item...')
+    const addButton = screen.getByText('Add Item')
 
     fireEvent.change(input, { target: { value: 'Passport' } })
     fireEvent.click(addButton)
@@ -98,13 +98,40 @@ describe('Travel Checklist App', () => {
   it('prevents adding empty items', () => {
     render(<App />)
 
-    const input = screen.getByPlaceholderText('Add a new item...')
-    const addButton = screen.getByText('Add')
+    const input = screen.getByPlaceholderText('Add a new travel item...')
+    const addButton = screen.getByText('Add Item')
 
     fireEvent.change(input, { target: { value: '   ' } })
     fireEvent.click(addButton)
 
     expect(screen.getByText('Please enter an item name')).toBeInTheDocument()
+  })
+
+  it('displays icons for default items', () => {
+    localStorageMock.getItem.mockReturnValue(null)
+    render(<App />)
+
+    // Check that icons are displayed for default items
+    expect(screen.getByText('📘')).toBeInTheDocument() // Passport
+    expect(screen.getByText('🪥')).toBeInTheDocument() // Toothbrush
+    expect(screen.getByText('🔌')).toBeInTheDocument() // Phone charger
+    expect(screen.getByText('👕')).toBeInTheDocument() // Clothes
+    expect(screen.getByText('🕶️')).toBeInTheDocument() // Sunglasses
+    expect(screen.getByText('🍿')).toBeInTheDocument() // Snacks
+  })
+
+  it('assigns icons to new items', () => {
+    render(<App />)
+
+    const input = screen.getByPlaceholderText('Add a new travel item...')
+    const addButton = screen.getByText('Add Item')
+
+    // Add a camera item
+    fireEvent.change(input, { target: { value: 'Camera' } })
+    fireEvent.click(addButton)
+
+    // Check that the camera icon is displayed
+    expect(screen.getByText('📷')).toBeInTheDocument()
   })
 })
 
