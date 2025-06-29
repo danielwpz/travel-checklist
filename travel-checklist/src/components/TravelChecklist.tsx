@@ -3,7 +3,7 @@ import { useState } from 'react'
 import { type ChecklistItem } from '../types'
 import ChecklistItemComponent from './ChecklistItem'
 import AddItemForm from './AddItemForm'
-import { Edit3, RotateCcw, CheckCircle2 } from 'lucide-react'
+import { Edit3, RotateCcw, CheckCircle2, Trash2 } from 'lucide-react'
 
 interface TravelChecklistProps {
   items: ChecklistItem[]
@@ -14,6 +14,8 @@ interface TravelChecklistProps {
 const TravelChecklist = ({ items, setItems, onReset }: TravelChecklistProps) => {
   const [editMode, setEditMode] = useState(false)
   const [draggedItem, setDraggedItem] = useState<string | null>(null)
+  const [selectionMode, setSelectionMode] = useState(false)
+  const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set())
 
   const toggleItem = (id: string) => {
     setItems(items.map(item =>
@@ -45,6 +47,38 @@ const TravelChecklist = ({ items, setItems, onReset }: TravelChecklistProps) => 
     }
     setItems([...items, newItem])
     return true
+  }
+
+  const toggleSelection = (id: string) => {
+    const newSelectedItems = new Set(selectedItems)
+    if (newSelectedItems.has(id)) {
+      newSelectedItems.delete(id)
+    } else {
+      newSelectedItems.add(id)
+    }
+    setSelectedItems(newSelectedItems)
+  }
+
+  const selectAllItems = () => {
+    setSelectedItems(new Set(items.map(item => item.id)))
+  }
+
+  const clearSelection = () => {
+    setSelectedItems(new Set())
+  }
+
+  const deleteSelectedItems = () => {
+    setItems(items.filter(item => !selectedItems.has(item.id)))
+    setSelectedItems(new Set())
+    setSelectionMode(false)
+  }
+
+  const toggleSelectionMode = () => {
+    setSelectionMode(!selectionMode)
+    setSelectedItems(new Set())
+    if (editMode) {
+      setEditMode(false)
+    }
   }
 
   const [showResetDialog, setShowResetDialog] = useState(false)
@@ -115,13 +149,23 @@ const TravelChecklist = ({ items, setItems, onReset }: TravelChecklistProps) => 
               <button
                 onClick={() => setEditMode(!editMode)}
                 className={`btn btn-sm flex-fill ${editMode ? 'btn-primary' : 'btn-outline-primary'}`}
+                disabled={selectionMode}
               >
                 <Edit3 size={16} className="me-2" />
                 {editMode ? 'Exit Edit' : 'Edit Mode'}
               </button>
               <button
+                onClick={toggleSelectionMode}
+                className={`btn btn-sm flex-fill ${selectionMode ? 'btn-warning' : 'btn-outline-warning'}`}
+                disabled={editMode}
+              >
+                <Trash2 size={16} className="me-2" />
+                {selectionMode ? 'Cancel' : 'Delete Item'}
+              </button>
+              <button
                 onClick={() => setShowResetDialog(true)}
                 className="btn btn-danger btn-sm flex-fill"
+                disabled={editMode || selectionMode}
               >
                 <RotateCcw size={16} className="me-2" />
                 Reset
@@ -143,6 +187,43 @@ const TravelChecklist = ({ items, setItems, onReset }: TravelChecklistProps) => 
             ></div>
           </div>
         </div>
+
+        {/* Selection controls */}
+        {selectionMode && (
+          <div className="mt-3 p-3 bg-warning bg-opacity-10 border border-warning border-opacity-25 rounded">
+            <div className="d-flex align-items-center justify-content-between flex-wrap gap-2">
+              <div className="d-flex align-items-center gap-3">
+                <span className="fw-medium text-warning-emphasis">
+                  {selectedItems.size} item{selectedItems.size !== 1 ? 's' : ''} selected
+                </span>
+                <div className="d-flex gap-2">
+                  <button
+                    onClick={selectAllItems}
+                    className="btn btn-sm btn-outline-warning"
+                    disabled={selectedItems.size === items.length}
+                  >
+                    Select All
+                  </button>
+                  <button
+                    onClick={clearSelection}
+                    className="btn btn-sm btn-outline-secondary"
+                    disabled={selectedItems.size === 0}
+                  >
+                    Clear Selection
+                  </button>
+                </div>
+              </div>
+              <button
+                onClick={deleteSelectedItems}
+                className="btn btn-sm btn-danger"
+                disabled={selectedItems.size === 0}
+              >
+                <Trash2 size={16} className="me-2" />
+                Delete Selected ({selectedItems.size})
+              </button>
+            </div>
+          </div>
+        )}
       </div>
 
       <div className="card-body">
@@ -158,9 +239,12 @@ const TravelChecklist = ({ items, setItems, onReset }: TravelChecklistProps) => 
               key={item.id}
               item={item}
               editMode={editMode}
+              selectionMode={selectionMode}
+              isSelected={selectedItems.has(item.id)}
               onToggle={toggleItem}
               onDelete={deleteItem}
               onUpdateText={updateItemText}
+              onToggleSelection={toggleSelection}
               onDragStart={handleDragStart}
               onDragOver={handleDragOver}
               onDrop={handleDrop}
