@@ -3,6 +3,7 @@ export interface ChecklistItem {
   text: string;
   checked: boolean;
   isDefault: boolean;
+  icon?: string;
 }
 
 export const DEFAULT_ITEMS: string[] = [

@@ -4,6 +4,7 @@ import { type ChecklistItem } from '../types'
 import ChecklistItemComponent from './ChecklistItem'
 import AddItemForm from './AddItemForm'
 import { Edit3, RotateCcw, CheckCircle2 } from 'lucide-react'
+import { getIconForItem } from '../lib/iconMatcher'
 
 interface TravelChecklistProps {
   items: ChecklistItem[]
@@ -27,7 +28,7 @@ const TravelChecklist = ({ items, setItems, onReset }: TravelChecklistProps) => 
 
   const updateItemText = (id: string, newText: string) => {
     setItems(items.map(item =>
-      item.id === id ? { ...item, text: newText } : item
+      item.id === id ? { ...item, text: newText, icon: getIconForItem(newText) } : item
     ))
   }
 
@@ -41,7 +42,8 @@ const TravelChecklist = ({ items, setItems, onReset }: TravelChecklistProps) => 
       id: `custom-${Date.now()}`,
       text,
       checked: false,
-      isDefault: false
+      isDefault: false,
+      icon: getIconForItem(text)
     }
     setItems([...items, newItem])
     return true
