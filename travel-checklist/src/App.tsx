@@ -1,68 +1,83 @@
 import { useState, useEffect } from 'react'
-import { type ChecklistItem, DEFAULT_ITEMS } from './types'
-import TravelChecklist from './components/TravelChecklist'
-import { Luggage } from 'lucide-react'
+import { type TodoList, DEFAULT_LISTS } from './types'
+import ListOverview from './components/ListOverview'
+import ListView from './components/ListView'
 
 function App() {
-  const [items, setItems] = useState<ChecklistItem[]>([])
+  const [lists, setLists] = useState<TodoList[]>([])
+  const [currentListId, setCurrentListId] = useState<string | null>(null)
 
-  // Load items from localStorage on mount
+  // Load lists from localStorage on mount
   useEffect(() => {
-    const savedItems = localStorage.getItem('travel-checklist-items')
-    if (savedItems) {
+    const savedLists = localStorage.getItem('todo-lists')
+    if (savedLists) {
       try {
-        setItems(JSON.parse(savedItems))
+        setLists(JSON.parse(savedLists))
       } catch (error) {
-        console.error('Error parsing saved items:', error)
-        initializeDefaultItems()
+        console.error('Error parsing saved lists:', error)
+        initializeDefaultLists()
       }
     } else {
-      initializeDefaultItems()
+      initializeDefaultLists()
     }
   }, [])
 
-  // Save items to localStorage whenever items change
+  // Save lists to localStorage whenever lists change
   useEffect(() => {
-    if (items.length > 0) {
-      localStorage.setItem('travel-checklist-items', JSON.stringify(items))
+    if (lists.length > 0) {
+      localStorage.setItem('todo-lists', JSON.stringify(lists))
     }
-  }, [items])
+  }, [lists])
 
-  const initializeDefaultItems = () => {
-    const defaultItems: ChecklistItem[] = DEFAULT_ITEMS.map((text, index) => ({
-      id: `default-${index}`,
-      text,
-      checked: false,
-      isDefault: true
-    }))
-    setItems(defaultItems)
+  const initializeDefaultLists = () => {
+    setLists(DEFAULT_LISTS)
+  }
+
+  const handleSelectList = (listId: string) => {
+    setCurrentListId(listId)
+  }
+
+  const handleBackToOverview = () => {
+    setCurrentListId(null)
+  }
+
+  const handleUpdateList = (updatedList: TodoList) => {
+    setLists(prevLists =>
+      prevLists.map(list =>
+        list.id === updatedList.id ? updatedList : list
+      )
+    )
+  }
+
+  const handleAddList = () => {
+    const newList: TodoList = {
+      id: `list-${Date.now()}`,
+      name: 'New List',
+      items: [],
+      color: '#6b7280'
+    }
+    setLists(prevLists => [...prevLists, newList])
+    setCurrentListId(newList.id)
+  }
+
+  const currentList = lists.find(list => list.id === currentListId)
+
+  if (currentList) {
+    return (
+      <ListView
+        list={currentList}
+        onBack={handleBackToOverview}
+        onUpdateList={handleUpdateList}
+      />
+    )
   }
 
   return (
-    <div className="min-vh-100" style={{ background: 'linear-gradient(135deg, #e3f2fd 0%, #ffffff 50%, #f3e5f5 100%)' }}>
-      <div className="container py-4 py-md-5">
-        <div className="row justify-content-center">
-          <div className="col-12 col-lg-10 col-xl-8">
-            <div className="text-center mb-5">
-              <div className="d-flex align-items-center justify-content-center gap-3 mb-4">
-                <Luggage className="text-primary" size={48} />
-                <h1 className="display-4 fw-bold text-primary mb-0">
-                  Travel Checklist
-                </h1>
-              </div>
-              <p className="lead text-muted">
-                Stay organized and never forget the essentials for your next adventure
-              </p>
-            </div>
-            <TravelChecklist
-              items={items}
-              setItems={setItems}
-              onReset={initializeDefaultItems}
-            />
-          </div>
-        </div>
-      </div>
-    </div>
+    <ListOverview
+      lists={lists}
+      onSelectList={handleSelectList}
+      onAddList={handleAddList}
+    />
   )
 }
 
