@@ -3,7 +3,7 @@ import { useState } from 'react'
 import { type ChecklistItem } from '../types'
 import ChecklistItemComponent from './ChecklistItem'
 import AddItemForm from './AddItemForm'
-import { Edit3, RotateCcw, CheckCircle2 } from 'lucide-react'
+import { Edit3, RotateCcw, CheckCircle2, Printer } from 'lucide-react'
 
 interface TravelChecklistProps {
   items: ChecklistItem[]
@@ -53,6 +53,10 @@ const TravelChecklist = ({ items, setItems, onReset }: TravelChecklistProps) => 
     localStorage.removeItem('travel-checklist-items')
     onReset()
     setShowResetDialog(false)
+  }
+
+  const handlePrint = () => {
+    window.print()
   }
 
   const handleDragStart = (e: React.DragEvent, id: string) => {
@@ -111,13 +115,20 @@ const TravelChecklist = ({ items, setItems, onReset }: TravelChecklistProps) => 
             </div>
           </div>
           <div className="col-12 col-md-4">
-            <div className="d-flex gap-2">
+            <div className="d-flex gap-2 flex-wrap">
               <button
                 onClick={() => setEditMode(!editMode)}
                 className={`btn btn-sm flex-fill ${editMode ? 'btn-primary' : 'btn-outline-primary'}`}
               >
                 <Edit3 size={16} className="me-2" />
                 {editMode ? 'Exit Edit' : 'Edit Mode'}
+              </button>
+              <button
+                onClick={handlePrint}
+                className="btn btn-success btn-sm flex-fill"
+              >
+                <Printer size={16} className="me-2" />
+                Print
               </button>
               <button
                 onClick={() => setShowResetDialog(true)}

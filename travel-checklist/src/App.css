@@ -40,3 +40,105 @@
 .read-the-docs {
   color: #888;
 }
+
+/* Print styles */
+@media print {
+  /* Hide elements that shouldn't be printed */
+  .btn, button, .modal, .modal-backdrop {
+    display: none !important;
+  }
+
+  /* Hide the add item form when printing */
+  .mb-4:has(input) {
+    display: none !important;
+  }
+
+  /* Ensure the page breaks properly */
+  body {
+    background: white !important;
+    color: black !important;
+    font-size: 12pt;
+    line-height: 1.4;
+  }
+
+  /* Style the main container for print */
+  .container {
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  /* Style the card for print */
+  .card {
+    box-shadow: none !important;
+    border: 1px solid #000 !important;
+    background: white !important;
+    margin: 0 !important;
+    padding: 20px !important;
+  }
+
+  /* Style the header for print */
+  .card-header {
+    border-bottom: 2px solid #000 !important;
+    background: white !important;
+    padding-bottom: 15px !important;
+    margin-bottom: 20px !important;
+  }
+
+  /* Style the title for print */
+  h1, h2, .card-title {
+    color: black !important;
+    font-weight: bold !important;
+  }
+
+  /* Style checklist items for print */
+  .d-flex.flex-column.gap-3 > div {
+    border: 1px solid #ccc !important;
+    padding: 10px !important;
+    margin-bottom: 5px !important;
+    background: white !important;
+    page-break-inside: avoid;
+  }
+
+  /* Style checkboxes for print */
+  input[type="checkbox"] {
+    -webkit-appearance: checkbox !important;
+    appearance: checkbox !important;
+    width: 15px !important;
+    height: 15px !important;
+  }
+
+  /* Hide drag handles and edit buttons */
+  .cursor-grab, .btn-sm, .opacity-50 {
+    display: none !important;
+  }
+
+  /* Style progress information */
+  .text-muted, .text-primary {
+    color: black !important;
+  }
+
+  /* Ensure proper spacing */
+  .gap-3 {
+    gap: 0.5rem !important;
+  }
+
+  /* Style the progress bar for print */
+  .progress {
+    border: 1px solid #000 !important;
+    background: white !important;
+  }
+
+  .progress-bar {
+    background: #000 !important;
+  }
+
+  /* Add a print header */
+  .card-header::before {
+    content: "Travel Checklist - Printed on " attr(data-print-date);
+    display: block;
+    font-size: 10pt;
+    color: #666;
+    margin-bottom: 10px;
+  }
+}
