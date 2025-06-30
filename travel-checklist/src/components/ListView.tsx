@@ -71,12 +71,12 @@ const ListView = ({ list, onBack, onUpdateList }: ListViewProps) => {
           <div className="flex items-center space-x-3 mb-2">
             <h1 className="text-2xl font-bold">{list.name}</h1>
             <span className="text-lg">({activeItems.length})</span>
-            {list.color && (
+            {list.color && activeItems.length > 0 && (
               <div
                 className="w-6 h-6 rounded-full flex items-center justify-center text-white text-xs font-bold"
                 style={{ backgroundColor: list.color }}
               >
-                {activeItems.length > 0 ? activeItems.length : ''}
+                {activeItems.length}
               </div>
             )}
           </div>

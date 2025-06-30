@@ -44,27 +44,34 @@ export const DEFAULT_LISTS: TodoList[] = [
     id: 'travel-bucket-list',
     name: 'Travel bucket list',
     color: '#60a5fa',
-    items: [
-      { id: 'travel-1', text: 'Passport', checked: false, isDefault: true },
-      { id: 'travel-2', text: 'Toothbrush', checked: false, isDefault: true },
-      { id: 'travel-3', text: 'Phone charger', checked: false, isDefault: true },
-      { id: 'travel-4', text: 'Clothes', checked: false, isDefault: true },
-      { id: 'travel-5', text: 'Sunglasses', checked: false, isDefault: true },
-      { id: 'travel-6', text: 'Travel adapter', checked: false, isDefault: true },
-      { id: 'travel-7', text: 'Snacks', checked: false, isDefault: true }
-    ]
+    items: Array.from({ length: 124 }, (_, i) => ({
+      id: `travel-${i + 1}`,
+      text: i < 7 ? ['Passport', 'Toothbrush', 'Phone charger', 'Clothes', 'Sunglasses', 'Travel adapter', 'Snacks'][i] : `Travel item ${i + 1}`,
+      checked: false,
+      isDefault: true
+    }))
   },
   {
     id: 'work-assignments',
     name: 'Work and assignments',
     color: '#fbbf24',
-    items: []
+    items: Array.from({ length: 31 }, (_, i) => ({
+      id: `work-${i + 1}`,
+      text: `Work task ${i + 1}`,
+      checked: false,
+      isDefault: true
+    }))
   },
   {
     id: 'fitness',
     name: 'Fitness',
     color: '#34d399',
-    items: []
+    items: Array.from({ length: 11 }, (_, i) => ({
+      id: `fitness-${i + 1}`,
+      text: `Fitness goal ${i + 1}`,
+      checked: false,
+      isDefault: true
+    }))
   }
 ];
 

@@ -1,4 +1,4 @@
-import { Plus } from 'lucide-react'
+import { Plus, List } from 'lucide-react'
 import { type TodoList } from '../types'
 
 interface ListOverviewProps {
@@ -36,17 +36,17 @@ const ListOverview = ({ lists, onSelectList, onAddList }: ListOverviewProps) => 
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-3">
                     <div className="w-6 h-6 bg-gray-700 rounded flex items-center justify-center">
-                      <div className="w-3 h-3 bg-gray-600 rounded"></div>
+                      <List size={14} className="text-gray-400" />
                     </div>
                     <span className="text-white font-medium">{list.name}</span>
                   </div>
                   <div className="flex items-center space-x-2">
-                    {list.color && (
+                    {list.color && total > 0 && (
                       <div
                         className="w-6 h-6 rounded-full flex items-center justify-center text-white text-xs font-bold"
                         style={{ backgroundColor: list.color }}
                       >
-                        {total > 0 ? total : ''}
+                        {total}
                       </div>
                     )}
                     <span className="text-gray-400 text-lg">{total}</span>
@@ -62,7 +62,9 @@ const ListOverview = ({ lists, onSelectList, onAddList }: ListOverviewProps) => 
           onClick={onAddList}
           className="w-full bg-gray-800 rounded-2xl p-4 flex items-center justify-center space-x-2 hover:bg-gray-700 transition-colors"
         >
-          <Plus size={20} className="text-white" />
+          <div className="w-6 h-6 bg-gray-700 rounded-full flex items-center justify-center">
+            <Plus size={16} className="text-white" />
+          </div>
           <span className="text-white font-medium">Add a list</span>
         </button>
       </div>
