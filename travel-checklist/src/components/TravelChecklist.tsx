@@ -1,9 +1,7 @@
 
 import { useState } from 'react'
 import { type ChecklistItem } from '../types'
-import ChecklistItemComponent from './ChecklistItem'
-import AddItemForm from './AddItemForm'
-import { Edit3, RotateCcw, CheckCircle2 } from 'lucide-react'
+import { Plus, Trash2, ChevronDown, ChevronUp, RotateCcw } from 'lucide-react'
 
 interface TravelChecklistProps {
   items: ChecklistItem[]
@@ -12,8 +10,12 @@ interface TravelChecklistProps {
 }
 
 const TravelChecklist = ({ items, setItems, onReset }: TravelChecklistProps) => {
-  const [editMode, setEditMode] = useState(false)
-  const [draggedItem, setDraggedItem] = useState<string | null>(null)
+  const [newItemText, setNewItemText] = useState('')
+  const [showCompleted, setShowCompleted] = useState(false)
+  const [showResetDialog, setShowResetDialog] = useState(false)
+
+  const activeItems = items.filter(item => !item.checked)
+  const completedItems = items.filter(item => item.checked)
 
   const toggleItem = (id: string) => {
     setItems(items.map(item =>
@@ -25,29 +27,35 @@ const TravelChecklist = ({ items, setItems, onReset }: TravelChecklistProps) => 
     setItems(items.filter(item => item.id !== id))
   }
 
-  const updateItemText = (id: string, newText: string) => {
-    setItems(items.map(item =>
-      item.id === id ? { ...item, text: newText } : item
-    ))
-  }
+  const addItem = () => {
+    const trimmedText = newItemText.trim()
+    if (!trimmedText) return
 
-  const addItem = (text: string) => {
     // Check for duplicates
-    if (items.some(item => item.text.toLowerCase() === text.toLowerCase())) {
-      return false
+    if (items.some(item => item.text.toLowerCase() === trimmedText.toLowerCase())) {
+      return
     }
 
     const newItem: ChecklistItem = {
       id: `custom-${Date.now()}`,
-      text,
+      text: trimmedText,
       checked: false,
       isDefault: false
     }
+
     setItems([...items, newItem])
-    return true
+    setNewItemText('')
   }
 
-  const [showResetDialog, setShowResetDialog] = useState(false)
+  const deleteAllCompleted = () => {
+    setItems(items.filter(item => !item.checked))
+  }
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      addItem()
+    }
+  }
 
   const handleReset = () => {
     localStorage.removeItem('travel-checklist-items')
@@ -55,165 +63,177 @@ const TravelChecklist = ({ items, setItems, onReset }: TravelChecklistProps) => 
     setShowResetDialog(false)
   }
 
-  const handleDragStart = (e: React.DragEvent, id: string) => {
-    setDraggedItem(id)
-    e.dataTransfer.effectAllowed = 'move'
-  }
-
-  const handleDragOver = (e: React.DragEvent) => {
-    e.preventDefault()
-    e.dataTransfer.dropEffect = 'move'
-  }
-
-  const handleDrop = (e: React.DragEvent, targetId: string) => {
-    e.preventDefault()
-
-    if (!draggedItem || draggedItem === targetId) {
-      setDraggedItem(null)
-      return
-    }
-
-    const draggedIndex = items.findIndex(item => item.id === draggedItem)
-    const targetIndex = items.findIndex(item => item.id === targetId)
-
-    if (draggedIndex === -1 || targetIndex === -1) {
-      setDraggedItem(null)
-      return
-    }
-
-    const newItems = [...items]
-    const [draggedItemObj] = newItems.splice(draggedIndex, 1)
-    newItems.splice(targetIndex, 0, draggedItemObj)
-
-    setItems(newItems)
-    setDraggedItem(null)
-  }
-
-  const checkedCount = items.filter(item => item.checked).length
-  const totalCount = items.length
-
   return (
-    <div className="card shadow-lg border-0" style={{ backgroundColor: 'rgba(255, 255, 255, 0.95)', backdropFilter: 'blur(10px)' }}>
-      <div className="card-header bg-transparent border-bottom-0 pb-2">
-        <div className="row align-items-center g-3">
-          <div className="col-12 col-md-8">
-            <h2 className="card-title d-flex align-items-center gap-2 mb-2 h4">
-              <CheckCircle2 className="text-primary" size={24} />
-              Your Travel Checklist
-            </h2>
-            <div className="d-flex align-items-center gap-3 small text-muted">
-              <span>Progress: {checkedCount}/{totalCount} items packed</span>
-              {totalCount > 0 && (
-                <span className="text-primary fw-medium">
-                  {Math.round((checkedCount / totalCount) * 100)}% complete
-                </span>
+    <div className="min-h-screen bg-gray-900 text-white">
+      <div className="max-w-sm mx-auto">
+        {/* Header */}
+        <div className="text-center pt-8 pb-6">
+          <h1 className="text-4xl font-bold mb-2">Travel</h1>
+          <div className="flex items-center justify-center space-x-2">
+            <span className="text-gray-400">My checklist ({activeItems.length})</span>
+            <button
+              onClick={() => setShowResetDialog(true)}
+              className="p-1 text-gray-500 hover:text-red-500 transition-colors"
+              title="Reset to default items"
+            >
+              <RotateCcw size={16} />
+            </button>
+          </div>
+        </div>
+
+        {/* Travel Checklist */}
+        <div className="px-4 mb-6">
+          <div className="bg-gray-800 rounded-2xl p-4 mb-3">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center space-x-3">
+                <div className="w-6 h-6 bg-gray-700 rounded flex items-center justify-center">
+                  <div className="w-3 h-3 bg-blue-500 rounded"></div>
+                </div>
+                <span className="text-white font-medium">Travel checklist</span>
+              </div>
+              <div className="flex items-center space-x-2">
+                {activeItems.length > 0 && (
+                  <div className="w-6 h-6 rounded-full bg-blue-500 flex items-center justify-center text-white text-xs font-bold">
+                    {activeItems.length}
+                  </div>
+                )}
+                <span className="text-gray-400 text-lg">{activeItems.length}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Active Items */}
+        <div className="px-4 space-y-3 mb-6">
+          {activeItems.map((item) => (
+            <div
+              key={item.id}
+              className="bg-gray-800 rounded-2xl p-4 flex items-center space-x-3"
+            >
+              <button
+                onClick={() => toggleItem(item.id)}
+                className="w-6 h-6 border-2 border-gray-600 rounded-full flex items-center justify-center hover:border-green-500 transition-colors"
+              >
+                {item.checked && (
+                  <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+                )}
+              </button>
+              <span className="flex-1 text-white">{item.text}</span>
+              {!item.isDefault && (
+                <button
+                  onClick={() => deleteItem(item.id)}
+                  className="p-1 text-gray-500 hover:text-red-500 transition-colors"
+                >
+                  <Trash2 size={16} />
+                </button>
               )}
             </div>
+          ))}
+
+          {/* Add Item Input */}
+          <div className="bg-gray-800 rounded-2xl p-4 flex items-center space-x-3">
+            <div className="w-6 h-6 border-2 border-gray-600 rounded-full flex items-center justify-center">
+              <Plus size={16} className="text-gray-600" />
+            </div>
+            <input
+              type="text"
+              value={newItemText}
+              onChange={(e) => setNewItemText(e.target.value)}
+              onKeyDown={handleKeyDown}
+              placeholder="Add a new item..."
+              className="flex-1 bg-transparent text-white placeholder-gray-500 outline-none"
+            />
           </div>
-          <div className="col-12 col-md-4">
-            <div className="d-flex gap-2">
+        </div>
+
+        {/* Completed Section */}
+        {completedItems.length > 0 && (
+          <div className="px-4">
+            <div className="w-full bg-gray-800 rounded-t-2xl p-4 flex items-center justify-between hover:bg-gray-700 transition-colors">
               <button
-                onClick={() => setEditMode(!editMode)}
-                className={`btn btn-sm flex-fill ${editMode ? 'btn-primary' : 'btn-outline-primary'}`}
+                onClick={() => setShowCompleted(!showCompleted)}
+                className="flex items-center space-x-3 flex-1"
               >
-                <Edit3 size={16} className="me-2" />
-                {editMode ? 'Exit Edit' : 'Edit Mode'}
+                <span className="text-white font-medium">Done</span>
+                {showCompleted ? (
+                  <ChevronUp size={20} className="text-gray-400" />
+                ) : (
+                  <ChevronDown size={20} className="text-gray-400" />
+                )}
               </button>
               <button
-                onClick={() => setShowResetDialog(true)}
-                className="btn btn-danger btn-sm flex-fill"
+                onClick={deleteAllCompleted}
+                className="text-gray-400 hover:text-red-500 transition-colors"
               >
-                <RotateCcw size={16} className="me-2" />
-                Reset
+                Delete all
               </button>
             </div>
-          </div>
-        </div>
 
-        {/* Progress bar */}
-        <div className="mt-3">
-          <div className="progress" style={{ height: '8px' }}>
-            <div
-              className="progress-bar bg-primary"
-              role="progressbar"
-              style={{ width: `${totalCount > 0 ? (checkedCount / totalCount) * 100 : 0}%` }}
-              aria-valuenow={totalCount > 0 ? (checkedCount / totalCount) * 100 : 0}
-              aria-valuemin={0}
-              aria-valuemax={100}
-            ></div>
-          </div>
-        </div>
-      </div>
-
-      <div className="card-body">
-        {/* Add item form */}
-        <div className="mb-4">
-          <AddItemForm onAddItem={addItem} />
-        </div>
-
-        {/* Checklist items */}
-        <div className="d-flex flex-column gap-3">
-          {items.map((item) => (
-            <ChecklistItemComponent
-              key={item.id}
-              item={item}
-              editMode={editMode}
-              onToggle={toggleItem}
-              onDelete={deleteItem}
-              onUpdateText={updateItemText}
-              onDragStart={handleDragStart}
-              onDragOver={handleDragOver}
-              onDrop={handleDrop}
-              isDragging={draggedItem === item.id}
-            />
-          ))}
-        </div>
-
-        {items.length === 0 && (
-          <div className="text-center text-muted py-5">
-            <CheckCircle2 size={48} className="mx-auto mb-3 opacity-50" />
-            <h5 className="mb-2">No items in your checklist</h5>
-            <p className="small">Add some items above to get started on your travel preparations!</p>
+            {showCompleted && (
+              <div className="bg-gray-800 rounded-b-2xl space-y-3 p-4 pt-0">
+                {completedItems.map((item) => (
+                  <div
+                    key={item.id}
+                    className="flex items-center space-x-3 py-2"
+                  >
+                    <button
+                      onClick={() => toggleItem(item.id)}
+                      className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center"
+                    >
+                      <div className="w-3 h-3 bg-white rounded-full"></div>
+                    </button>
+                    <span className="flex-1 text-gray-400 line-through">{item.text}</span>
+                    {!item.isDefault && (
+                      <button
+                        onClick={() => deleteItem(item.id)}
+                        className="p-1 text-gray-500 hover:text-red-500 transition-colors"
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         )}
-      </div>
 
-      {/* Bootstrap Modal for Reset Confirmation */}
-      {showResetDialog && (
-        <div className="modal fade show d-block" tabIndex={-1} style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
-          <div className="modal-dialog modal-dialog-centered">
-            <div className="modal-content">
-              <div className="modal-header">
-                <h5 className="modal-title">Reset to Default Checklist</h5>
+        {items.length === 0 && (
+          <div className="text-center text-gray-400 py-8 px-4">
+            <div className="w-16 h-16 bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-4">
+              <Plus size={24} className="text-gray-600" />
+            </div>
+            <h3 className="text-lg font-medium mb-2">No items in your checklist</h3>
+            <p className="text-sm">Add some items above to get started on your travel preparations!</p>
+          </div>
+        )}
+
+        {/* Reset Confirmation Modal */}
+        {showResetDialog && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+            <div className="bg-gray-800 rounded-2xl p-6 max-w-sm w-full">
+              <h3 className="text-lg font-bold text-white mb-4">Reset to Default Checklist</h3>
+              <p className="text-gray-400 mb-6">
+                Are you sure you want to reset to the default checklist? This will remove all custom items and uncheck all items. This action cannot be undone.
+              </p>
+              <div className="flex space-x-3">
                 <button
-                  type="button"
-                  className="btn-close"
                   onClick={() => setShowResetDialog(false)}
-                ></button>
-              </div>
-              <div className="modal-body">
-                <p>Are you sure you want to reset to the default checklist? This will remove all custom items and uncheck all items. This action cannot be undone.</p>
-              </div>
-              <div className="modal-footer">
-                <button
-                  type="button"
-                  className="btn btn-secondary"
-                  onClick={() => setShowResetDialog(false)}
+                  className="flex-1 bg-gray-700 text-white py-2 px-4 rounded-xl hover:bg-gray-600 transition-colors"
                 >
                   Cancel
                 </button>
                 <button
-                  type="button"
-                  className="btn btn-danger"
                   onClick={handleReset}
+                  className="flex-1 bg-red-600 text-white py-2 px-4 rounded-xl hover:bg-red-700 transition-colors"
                 >
-                  Reset Checklist
+                  Reset
                 </button>
               </div>
             </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   )
 }

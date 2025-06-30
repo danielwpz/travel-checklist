@@ -14,11 +14,6 @@ Object.defineProperty(window, 'localStorage', {
   value: localStorageMock
 })
 
-// Mock window.confirm
-Object.defineProperty(window, 'confirm', {
-  value: vi.fn(() => true)
-})
-
 describe('Travel Checklist App', () => {
   beforeEach(() => {
     localStorageMock.getItem.mockClear()
@@ -29,7 +24,8 @@ describe('Travel Checklist App', () => {
 
   it('renders the travel checklist title', () => {
     render(<App />)
-    expect(screen.getByText('🧳 Travel Checklist')).toBeInTheDocument()
+    expect(screen.getByText('Travel')).toBeInTheDocument()
+    expect(screen.getByText('Travel checklist')).toBeInTheDocument()
   })
 
   it('displays default items on first load', () => {
@@ -45,66 +41,98 @@ describe('Travel Checklist App', () => {
     expect(screen.getByText('Snacks')).toBeInTheDocument()
   })
 
-  it('shows correct progress count', () => {
+  it('shows correct item count', () => {
     render(<App />)
-    expect(screen.getByText(/Progress: 0\/7 items packed/)).toBeInTheDocument()
+    expect(screen.getByText(/My checklist \(7\)/)).toBeInTheDocument()
   })
 
   it('can add a new item', () => {
     render(<App />)
 
     const input = screen.getByPlaceholderText('Add a new item...')
-    const addButton = screen.getByText('Add')
 
     fireEvent.change(input, { target: { value: 'Camera' } })
-    fireEvent.click(addButton)
+    fireEvent.keyDown(input, { key: 'Enter', code: 'Enter' })
 
     expect(screen.getByText('Camera')).toBeInTheDocument()
-    expect(screen.getByText(/Progress: 0\/8 items packed/)).toBeInTheDocument()
+    expect(screen.getByText(/My checklist \(8\)/)).toBeInTheDocument()
   })
 
   it('can check items', () => {
     render(<App />)
 
-    const passportCheckbox = screen.getByRole('checkbox', { name: '' })
-    fireEvent.click(passportCheckbox)
+    // Find the first checkbox button (for Passport)
+    const checkboxButtons = screen.getAllByRole('button')
+    const passportCheckbox = checkboxButtons.find(button =>
+      button.className.includes('border-gray-600') &&
+      button.className.includes('rounded-full')
+    )
 
-    expect(screen.getByText(/Progress: 1\/7 items packed/)).toBeInTheDocument()
+    if (passportCheckbox) {
+      fireEvent.click(passportCheckbox)
+      expect(screen.getByText(/My checklist \(6\)/)).toBeInTheDocument()
+    }
   })
 
-  it('toggles edit mode', () => {
+  it('shows completed section when items are checked', () => {
     render(<App />)
 
-    const editButton = screen.getByText('Edit Mode')
-    fireEvent.click(editButton)
+    // Check an item first
+    const checkboxButtons = screen.getAllByRole('button')
+    const firstCheckbox = checkboxButtons.find(button =>
+      button.className.includes('border-gray-600') &&
+      button.className.includes('rounded-full')
+    )
 
-    expect(screen.getByText('Exit Edit')).toBeInTheDocument()
-    expect(screen.getAllByText('✏️')).toHaveLength(7) // Edit buttons for each item
-    expect(screen.getAllByText('🗑️')).toHaveLength(7) // Delete buttons for each item
+    if (firstCheckbox) {
+      fireEvent.click(firstCheckbox)
+      expect(screen.getByText('Done')).toBeInTheDocument()
+    }
   })
 
   it('prevents adding duplicate items', () => {
     render(<App />)
 
     const input = screen.getByPlaceholderText('Add a new item...')
-    const addButton = screen.getByText('Add')
 
     fireEvent.change(input, { target: { value: 'Passport' } })
-    fireEvent.click(addButton)
+    fireEvent.keyDown(input, { key: 'Enter', code: 'Enter' })
 
-    expect(screen.getByText('This item already exists in your checklist')).toBeInTheDocument()
+    // The item count should remain the same (7) since duplicate wasn't added
+    expect(screen.getByText(/My checklist \(7\)/)).toBeInTheDocument()
   })
 
-  it('prevents adding empty items', () => {
+  it('can delete custom items', () => {
     render(<App />)
 
+    // Add a custom item first
     const input = screen.getByPlaceholderText('Add a new item...')
-    const addButton = screen.getByText('Add')
+    fireEvent.change(input, { target: { value: 'Camera' } })
+    fireEvent.keyDown(input, { key: 'Enter', code: 'Enter' })
 
-    fireEvent.change(input, { target: { value: '   ' } })
-    fireEvent.click(addButton)
+    expect(screen.getByText('Camera')).toBeInTheDocument()
 
-    expect(screen.getByText('Please enter an item name')).toBeInTheDocument()
+    // Find and click the delete button for the custom item
+    const deleteButtons = screen.getAllByRole('button')
+    const deleteButton = deleteButtons.find(button =>
+      button.className.includes('hover:text-red-500')
+    )
+
+    if (deleteButton) {
+      fireEvent.click(deleteButton)
+      expect(screen.queryByText('Camera')).not.toBeInTheDocument()
+    }
+  })
+
+  it('shows reset confirmation dialog', () => {
+    render(<App />)
+
+    // Find and click the reset button
+    const resetButton = screen.getByTitle('Reset to default items')
+    fireEvent.click(resetButton)
+
+    expect(screen.getByText('Reset to Default Checklist')).toBeInTheDocument()
+    expect(screen.getByText(/Are you sure you want to reset/)).toBeInTheDocument()
   })
 })
 

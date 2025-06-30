@@ -1,82 +1,51 @@
 import { useState, useEffect } from 'react'
-import { type TodoList, DEFAULT_LISTS } from './types'
-import ListOverview from './components/ListOverview'
-import ListView from './components/ListView'
+import { type ChecklistItem, DEFAULT_ITEMS } from './types'
+import TravelChecklist from './components/TravelChecklist'
 
 function App() {
-  const [lists, setLists] = useState<TodoList[]>([])
-  const [currentListId, setCurrentListId] = useState<string | null>(null)
+  const [items, setItems] = useState<ChecklistItem[]>([])
 
-  // Load lists from localStorage on mount
+  // Load items from localStorage on mount
   useEffect(() => {
-    const savedLists = localStorage.getItem('todo-lists')
-    if (savedLists) {
+    const savedItems = localStorage.getItem('travel-checklist-items')
+    if (savedItems) {
       try {
-        setLists(JSON.parse(savedLists))
+        setItems(JSON.parse(savedItems))
       } catch (error) {
-        console.error('Error parsing saved lists:', error)
-        initializeDefaultLists()
+        console.error('Error parsing saved items:', error)
+        initializeDefaultItems()
       }
     } else {
-      initializeDefaultLists()
+      initializeDefaultItems()
     }
   }, [])
 
-  // Save lists to localStorage whenever lists change
+  // Save items to localStorage whenever items change
   useEffect(() => {
-    if (lists.length > 0) {
-      localStorage.setItem('todo-lists', JSON.stringify(lists))
+    if (items.length > 0) {
+      localStorage.setItem('travel-checklist-items', JSON.stringify(items))
     }
-  }, [lists])
+  }, [items])
 
-  const initializeDefaultLists = () => {
-    setLists(DEFAULT_LISTS)
+  const initializeDefaultItems = () => {
+    const defaultItems: ChecklistItem[] = DEFAULT_ITEMS.map((item, index) => ({
+      id: `default-${index}`,
+      text: item,
+      checked: false,
+      isDefault: true
+    }))
+    setItems(defaultItems)
   }
 
-  const handleSelectList = (listId: string) => {
-    setCurrentListId(listId)
-  }
-
-  const handleBackToOverview = () => {
-    setCurrentListId(null)
-  }
-
-  const handleUpdateList = (updatedList: TodoList) => {
-    setLists(prevLists =>
-      prevLists.map(list =>
-        list.id === updatedList.id ? updatedList : list
-      )
-    )
-  }
-
-  const handleAddList = () => {
-    const newList: TodoList = {
-      id: `list-${Date.now()}`,
-      name: 'New List',
-      items: [],
-      color: '#6b7280'
-    }
-    setLists(prevLists => [...prevLists, newList])
-    setCurrentListId(newList.id)
-  }
-
-  const currentList = lists.find(list => list.id === currentListId)
-
-  if (currentList) {
-    return (
-      <ListView
-        list={currentList}
-        onBack={handleBackToOverview}
-        onUpdateList={handleUpdateList}
-      />
-    )
+  const handleReset = () => {
+    initializeDefaultItems()
   }
 
   return (
-    <ListOverview
-      lists={lists}
-      onSelectList={handleSelectList}
-      onAddList={handleAddList}
+    <TravelChecklist
+      items={items}
+      setItems={setItems}
+      onReset={handleReset}
     />
   )
 }
