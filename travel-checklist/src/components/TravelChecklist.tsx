@@ -96,16 +96,6 @@ const TravelChecklist = ({ items, setItems, onReset }: TravelChecklistProps) => 
                     </small>
                   </div>
                 </div>
-                <div className="d-flex align-items-center">
-                  {activeItems.length > 0 && (
-                    <span className="badge-count me-2">
-                      {activeItems.length}
-                    </span>
-                  )}
-                  <span className="text-muted-custom fs-5">
-                    {items.length}
-                  </span>
-                </div>
               </div>
             </div>
           </div>
