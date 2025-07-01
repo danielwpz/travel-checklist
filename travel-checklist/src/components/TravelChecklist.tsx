@@ -1,7 +1,6 @@
 
 import { useState } from 'react'
 import { type ChecklistItem } from '../types'
-import { Plus, Trash2, ChevronDown, ChevronUp, RotateCcw } from 'lucide-react'
 
 interface TravelChecklistProps {
   items: ChecklistItem[]
@@ -64,177 +63,198 @@ const TravelChecklist = ({ items, setItems, onReset }: TravelChecklistProps) => 
   }
 
   return (
-    <div className="min-h-screen bg-gray-900 text-white">
-      <div className="max-w-sm mx-auto">
-        {/* Header */}
-        <div className="text-center pt-8 pb-6">
-          <h1 className="text-4xl font-bold mb-2">Travel</h1>
-          <div className="flex items-center justify-center space-x-2">
-            <span className="text-gray-400">My checklist ({activeItems.length})</span>
-            <button
-              onClick={() => setShowResetDialog(true)}
-              className="p-1 text-gray-500 hover:text-red-500 transition-colors"
-              title="Reset to default items"
-            >
-              <RotateCcw size={16} />
-            </button>
-          </div>
+    <>
+      {/* Header */}
+      <div className="app-header">
+        <h1 className="app-title">Travel</h1>
+        <div className="d-flex align-items-center justify-content-center">
+          <span className="app-subtitle me-2">My checklist ({activeItems.length})</span>
+          <button
+            onClick={() => setShowResetDialog(true)}
+            className="btn btn-sm btn-outline-secondary"
+            title="Reset to default items"
+          >
+            <i className="fas fa-undo"></i>
+          </button>
         </div>
+      </div>
 
-        {/* Travel Checklist */}
-        <div className="px-4 mb-6">
-          <div className="bg-gray-800 rounded-2xl p-4 mb-3">
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center space-x-3">
-                <div className="w-6 h-6 bg-gray-700 rounded flex items-center justify-center">
-                  <div className="w-3 h-3 bg-blue-500 rounded"></div>
-                </div>
-                <span className="text-white font-medium">Travel checklist</span>
-              </div>
-              <div className="flex items-center space-x-2">
-                {activeItems.length > 0 && (
-                  <div className="w-6 h-6 rounded-full bg-blue-500 flex items-center justify-center text-white text-xs font-bold">
-                    {activeItems.length}
+      {/* Travel Checklist Header Card */}
+      <div className="container-fluid px-3">
+        <div className="row g-3">
+          <div className="col-12">
+            <div className="card list-card">
+              <div className="card-body d-flex align-items-center">
+                <div className="d-flex align-items-center flex-grow-1">
+                  <div className="btn-circle me-3" style={{ backgroundColor: '#007bff' }}>
+                    <i className="fas fa-plane"></i>
                   </div>
-                )}
-                <span className="text-gray-400 text-lg">{activeItems.length}</span>
+                  <div className="flex-grow-1">
+                    <h6 className="card-title mb-0 text-white">Travel checklist</h6>
+                    <small className="text-muted-custom">
+                      {activeItems.length} of {items.length} items
+                    </small>
+                  </div>
+                </div>
+                <div className="d-flex align-items-center">
+                  {activeItems.length > 0 && (
+                    <span className="badge-count me-2">
+                      {activeItems.length}
+                    </span>
+                  )}
+                  <span className="text-muted-custom fs-5">
+                    {items.length}
+                  </span>
+                </div>
               </div>
             </div>
           </div>
-        </div>
 
-        {/* Active Items */}
-        <div className="px-4 space-y-3 mb-6">
+          {/* Active Items */}
           {activeItems.map((item) => (
-            <div
-              key={item.id}
-              className="bg-gray-800 rounded-2xl p-4 flex items-center space-x-3"
-            >
-              <button
-                onClick={() => toggleItem(item.id)}
-                className="w-6 h-6 border-2 border-gray-600 rounded-full flex items-center justify-center hover:border-green-500 transition-colors"
-              >
-                {item.checked && (
-                  <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-                )}
-              </button>
-              <span className="flex-1 text-white">{item.text}</span>
-              {!item.isDefault && (
-                <button
-                  onClick={() => deleteItem(item.id)}
-                  className="p-1 text-gray-500 hover:text-red-500 transition-colors"
-                >
-                  <Trash2 size={16} />
-                </button>
-              )}
+            <div key={item.id} className="col-12">
+              <div className="card list-item-card">
+                <div className="card-body d-flex align-items-center">
+                  <button
+                    onClick={() => toggleItem(item.id)}
+                    className="custom-checkbox me-3"
+                  >
+                  </button>
+                  <span className="flex-grow-1 text-white">{item.text}</span>
+                  {!item.isDefault && (
+                    <button
+                      onClick={() => deleteItem(item.id)}
+                      className="btn btn-sm btn-outline-danger ms-2"
+                    >
+                      <i className="fas fa-trash"></i>
+                    </button>
+                  )}
+                </div>
+              </div>
             </div>
           ))}
 
           {/* Add Item Input */}
-          <div className="bg-gray-800 rounded-2xl p-4 flex items-center space-x-3">
-            <div className="w-6 h-6 border-2 border-gray-600 rounded-full flex items-center justify-center">
-              <Plus size={16} className="text-gray-600" />
+          <div className="col-12">
+            <div className="card list-item-card">
+              <div className="card-body d-flex align-items-center">
+                <div className="btn-circle me-3">
+                  <i className="fas fa-plus"></i>
+                </div>
+                <input
+                  type="text"
+                  className="form-control"
+                  placeholder="Add a new item..."
+                  value={newItemText}
+                  onChange={(e) => setNewItemText(e.target.value)}
+                  onKeyDown={handleKeyDown}
+                />
+              </div>
             </div>
-            <input
-              type="text"
-              value={newItemText}
-              onChange={(e) => setNewItemText(e.target.value)}
-              onKeyDown={handleKeyDown}
-              placeholder="Add a new item..."
-              className="flex-1 bg-transparent text-white placeholder-gray-500 outline-none"
-            />
           </div>
+
+          {/* Completed Section */}
+          {completedItems.length > 0 && (
+            <div className="col-12">
+              <div className="card list-card">
+                <div className="card-body">
+                  <div className="d-flex align-items-center justify-content-between mb-3">
+                    <button
+                      onClick={() => setShowCompleted(!showCompleted)}
+                      className="btn btn-link text-white p-0 d-flex align-items-center"
+                    >
+                      <span className="me-2">Done ({completedItems.length})</span>
+                      <i className={`fas fa-chevron-${showCompleted ? 'up' : 'down'}`}></i>
+                    </button>
+                    <button
+                      onClick={deleteAllCompleted}
+                      className="btn btn-sm btn-outline-danger"
+                    >
+                      Delete all
+                    </button>
+                  </div>
+
+                  {showCompleted && (
+                    <div className="row g-2">
+                      {completedItems.map((item) => (
+                        <div key={item.id} className="col-12">
+                          <div className="d-flex align-items-center py-2">
+                            <button
+                              onClick={() => toggleItem(item.id)}
+                              className="custom-checkbox checked me-3"
+                            >
+                            </button>
+                            <span className="flex-grow-1 text-completed">{item.text}</span>
+                            {!item.isDefault && (
+                              <button
+                                onClick={() => deleteItem(item.id)}
+                                className="btn btn-sm btn-outline-danger ms-2"
+                              >
+                                <i className="fas fa-trash"></i>
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
         </div>
 
-        {/* Completed Section */}
-        {completedItems.length > 0 && (
-          <div className="px-4">
-            <div className="w-full bg-gray-800 rounded-t-2xl p-4 flex items-center justify-between hover:bg-gray-700 transition-colors">
-              <button
-                onClick={() => setShowCompleted(!showCompleted)}
-                className="flex items-center space-x-3 flex-1"
-              >
-                <span className="text-white font-medium">Done</span>
-                {showCompleted ? (
-                  <ChevronUp size={20} className="text-gray-400" />
-                ) : (
-                  <ChevronDown size={20} className="text-gray-400" />
-                )}
-              </button>
-              <button
-                onClick={deleteAllCompleted}
-                className="text-gray-400 hover:text-red-500 transition-colors"
-              >
-                Delete all
-              </button>
-            </div>
-
-            {showCompleted && (
-              <div className="bg-gray-800 rounded-b-2xl space-y-3 p-4 pt-0">
-                {completedItems.map((item) => (
-                  <div
-                    key={item.id}
-                    className="flex items-center space-x-3 py-2"
-                  >
-                    <button
-                      onClick={() => toggleItem(item.id)}
-                      className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center"
-                    >
-                      <div className="w-3 h-3 bg-white rounded-full"></div>
-                    </button>
-                    <span className="flex-1 text-gray-400 line-through">{item.text}</span>
-                    {!item.isDefault && (
-                      <button
-                        onClick={() => deleteItem(item.id)}
-                        className="p-1 text-gray-500 hover:text-red-500 transition-colors"
-                      >
-                        <Trash2 size={16} />
-                      </button>
-                    )}
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        )}
-
+        {/* Empty State */}
         {items.length === 0 && (
-          <div className="text-center text-gray-400 py-8 px-4">
-            <div className="w-16 h-16 bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-4">
-              <Plus size={24} className="text-gray-600" />
+          <div className="text-center py-5">
+            <div className="btn-circle mx-auto mb-3" style={{ width: '4rem', height: '4rem' }}>
+              <i className="fas fa-plane fs-3"></i>
             </div>
-            <h3 className="text-lg font-medium mb-2">No items in your checklist</h3>
-            <p className="text-sm">Add some items above to get started on your travel preparations!</p>
+            <h5 className="text-white mb-2">No items in your checklist</h5>
+            <p className="text-muted-custom">Add some items above to get started on your travel preparations!</p>
           </div>
         )}
+      </div>
 
-        {/* Reset Confirmation Modal */}
-        {showResetDialog && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-            <div className="bg-gray-800 rounded-2xl p-6 max-w-sm w-full">
-              <h3 className="text-lg font-bold text-white mb-4">Reset to Default Checklist</h3>
-              <p className="text-gray-400 mb-6">
-                Are you sure you want to reset to the default checklist? This will remove all custom items and uncheck all items. This action cannot be undone.
-              </p>
-              <div className="flex space-x-3">
+      {/* Reset Confirmation Modal */}
+      {showResetDialog && (
+        <div className="modal show d-block" tabIndex={-1} style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
+          <div className="modal-dialog modal-dialog-centered">
+            <div className="modal-content bg-dark border-0">
+              <div className="modal-header border-secondary">
+                <h5 className="modal-title text-white">Reset to Default Checklist</h5>
                 <button
+                  type="button"
+                  className="btn-close btn-close-white"
                   onClick={() => setShowResetDialog(false)}
-                  className="flex-1 bg-gray-700 text-white py-2 px-4 rounded-xl hover:bg-gray-600 transition-colors"
+                ></button>
+              </div>
+              <div className="modal-body">
+                <p className="text-muted-custom mb-0">
+                  Are you sure you want to reset to the default checklist? This will remove all custom items and uncheck all items. This action cannot be undone.
+                </p>
+              </div>
+              <div className="modal-footer border-secondary">
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  onClick={() => setShowResetDialog(false)}
                 >
                   Cancel
                 </button>
                 <button
+                  type="button"
+                  className="btn btn-danger"
                   onClick={handleReset}
-                  className="flex-1 bg-red-600 text-white py-2 px-4 rounded-xl hover:bg-red-700 transition-colors"
                 >
                   Reset
                 </button>
               </div>
             </div>
           </div>
-        )}
-      </div>
-    </div>
+        </div>
+      )}
+    </>
   )
 }
 
