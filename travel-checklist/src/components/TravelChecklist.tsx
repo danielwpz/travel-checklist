@@ -1,9 +1,6 @@
 
 import { useState } from 'react'
 import { type ChecklistItem } from '../types'
-import ChecklistItemComponent from './ChecklistItem'
-import AddItemForm from './AddItemForm'
-import { Edit3, RotateCcw, CheckCircle2 } from 'lucide-react'
 
 interface TravelChecklistProps {
   items: ChecklistItem[]
@@ -12,8 +9,12 @@ interface TravelChecklistProps {
 }
 
 const TravelChecklist = ({ items, setItems, onReset }: TravelChecklistProps) => {
-  const [editMode, setEditMode] = useState(false)
-  const [draggedItem, setDraggedItem] = useState<string | null>(null)
+  const [newItemText, setNewItemText] = useState('')
+  const [showCompleted, setShowCompleted] = useState(false)
+  const [showResetDialog, setShowResetDialog] = useState(false)
+
+  const activeItems = items.filter(item => !item.checked)
+  const completedItems = items.filter(item => item.checked)
 
   const toggleItem = (id: string) => {
     setItems(items.map(item =>
@@ -25,29 +26,35 @@ const TravelChecklist = ({ items, setItems, onReset }: TravelChecklistProps) => 
     setItems(items.filter(item => item.id !== id))
   }
 
-  const updateItemText = (id: string, newText: string) => {
-    setItems(items.map(item =>
-      item.id === id ? { ...item, text: newText } : item
-    ))
-  }
+  const addItem = () => {
+    const trimmedText = newItemText.trim()
+    if (!trimmedText) return
 
-  const addItem = (text: string) => {
     // Check for duplicates
-    if (items.some(item => item.text.toLowerCase() === text.toLowerCase())) {
-      return false
+    if (items.some(item => item.text.toLowerCase() === trimmedText.toLowerCase())) {
+      return
     }
 
     const newItem: ChecklistItem = {
       id: `custom-${Date.now()}`,
-      text,
+      text: trimmedText,
       checked: false,
       isDefault: false
     }
+
     setItems([...items, newItem])
-    return true
+    setNewItemText('')
   }
 
-  const [showResetDialog, setShowResetDialog] = useState(false)
+  const deleteAllCompleted = () => {
+    setItems(items.filter(item => !item.checked))
+  }
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      addItem()
+    }
+  }
 
   const handleReset = () => {
     localStorage.removeItem('travel-checklist-items')
@@ -55,146 +62,169 @@ const TravelChecklist = ({ items, setItems, onReset }: TravelChecklistProps) => 
     setShowResetDialog(false)
   }
 
-  const handleDragStart = (e: React.DragEvent, id: string) => {
-    setDraggedItem(id)
-    e.dataTransfer.effectAllowed = 'move'
-  }
-
-  const handleDragOver = (e: React.DragEvent) => {
-    e.preventDefault()
-    e.dataTransfer.dropEffect = 'move'
-  }
-
-  const handleDrop = (e: React.DragEvent, targetId: string) => {
-    e.preventDefault()
-
-    if (!draggedItem || draggedItem === targetId) {
-      setDraggedItem(null)
-      return
-    }
-
-    const draggedIndex = items.findIndex(item => item.id === draggedItem)
-    const targetIndex = items.findIndex(item => item.id === targetId)
-
-    if (draggedIndex === -1 || targetIndex === -1) {
-      setDraggedItem(null)
-      return
-    }
-
-    const newItems = [...items]
-    const [draggedItemObj] = newItems.splice(draggedIndex, 1)
-    newItems.splice(targetIndex, 0, draggedItemObj)
-
-    setItems(newItems)
-    setDraggedItem(null)
-  }
-
-  const checkedCount = items.filter(item => item.checked).length
-  const totalCount = items.length
-
   return (
-    <div className="card shadow-lg border-0" style={{ backgroundColor: 'rgba(255, 255, 255, 0.95)', backdropFilter: 'blur(10px)' }}>
-      <div className="card-header bg-transparent border-bottom-0 pb-2">
-        <div className="row align-items-center g-3">
-          <div className="col-12 col-md-8">
-            <h2 className="card-title d-flex align-items-center gap-2 mb-2 h4">
-              <CheckCircle2 className="text-primary" size={24} />
-              Your Travel Checklist
-            </h2>
-            <div className="d-flex align-items-center gap-3 small text-muted">
-              <span>Progress: {checkedCount}/{totalCount} items packed</span>
-              {totalCount > 0 && (
-                <span className="text-primary fw-medium">
-                  {Math.round((checkedCount / totalCount) * 100)}% complete
-                </span>
-              )}
-            </div>
-          </div>
-          <div className="col-12 col-md-4">
-            <div className="d-flex gap-2">
-              <button
-                onClick={() => setEditMode(!editMode)}
-                className={`btn btn-sm flex-fill ${editMode ? 'btn-primary' : 'btn-outline-primary'}`}
-              >
-                <Edit3 size={16} className="me-2" />
-                {editMode ? 'Exit Edit' : 'Edit Mode'}
-              </button>
-              <button
-                onClick={() => setShowResetDialog(true)}
-                className="btn btn-danger btn-sm flex-fill"
-              >
-                <RotateCcw size={16} className="me-2" />
-                Reset
-              </button>
-            </div>
-          </div>
-        </div>
-
-        {/* Progress bar */}
-        <div className="mt-3">
-          <div className="progress" style={{ height: '8px' }}>
-            <div
-              className="progress-bar bg-primary"
-              role="progressbar"
-              style={{ width: `${totalCount > 0 ? (checkedCount / totalCount) * 100 : 0}%` }}
-              aria-valuenow={totalCount > 0 ? (checkedCount / totalCount) * 100 : 0}
-              aria-valuemin={0}
-              aria-valuemax={100}
-            ></div>
-          </div>
+    <>
+      {/* Header */}
+      <div className="app-header">
+        <h1 className="app-title">Travel</h1>
+        <div className="d-flex align-items-center justify-content-center">
+          <span className="app-subtitle me-2">My checklist ({activeItems.length})</span>
+          <button
+            onClick={() => setShowResetDialog(true)}
+            className="btn btn-sm btn-outline-secondary"
+            title="Reset to default items"
+          >
+            <i className="fas fa-undo"></i>
+          </button>
         </div>
       </div>
 
-      <div className="card-body">
-        {/* Add item form */}
-        <div className="mb-4">
-          <AddItemForm onAddItem={addItem} />
-        </div>
+      {/* Travel Checklist Header Card */}
+      <div className="container-fluid px-3">
+        <div className="row g-3">
+          <div className="col-12">
+            <div className="card list-card">
+              <div className="card-body d-flex align-items-center">
+                <div className="d-flex align-items-center flex-grow-1">
+                  <div className="btn-circle me-3" style={{ backgroundColor: '#007bff' }}>
+                    <i className="fas fa-plane"></i>
+                  </div>
+                  <div className="flex-grow-1">
+                    <h6 className="card-title mb-0 text-white">Travel checklist</h6>
+                    <small className="text-muted-custom">
+                      {activeItems.length} of {items.length} items
+                    </small>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
 
-        {/* Checklist items */}
-        <div className="d-flex flex-column gap-3">
-          {items.map((item) => (
-            <ChecklistItemComponent
-              key={item.id}
-              item={item}
-              editMode={editMode}
-              onToggle={toggleItem}
-              onDelete={deleteItem}
-              onUpdateText={updateItemText}
-              onDragStart={handleDragStart}
-              onDragOver={handleDragOver}
-              onDrop={handleDrop}
-              isDragging={draggedItem === item.id}
-            />
+          {/* Active Items */}
+          {activeItems.map((item) => (
+            <div key={item.id} className="col-12">
+              <div className="card list-item-card">
+                <div className="card-body d-flex align-items-center">
+                  <button
+                    onClick={() => toggleItem(item.id)}
+                    className="custom-checkbox me-3"
+                  >
+                  </button>
+                  <span className="flex-grow-1 text-white">{item.text}</span>
+                  {!item.isDefault && (
+                    <button
+                      onClick={() => deleteItem(item.id)}
+                      className="btn btn-sm btn-outline-danger ms-2"
+                    >
+                      <i className="fas fa-trash"></i>
+                    </button>
+                  )}
+                </div>
+              </div>
+            </div>
           ))}
+
+          {/* Add Item Input */}
+          <div className="col-12">
+            <div className="card list-item-card">
+              <div className="card-body d-flex align-items-center">
+                <div className="btn-circle me-3">
+                  <i className="fas fa-plus"></i>
+                </div>
+                <input
+                  type="text"
+                  className="form-control"
+                  placeholder="Add a new item..."
+                  value={newItemText}
+                  onChange={(e) => setNewItemText(e.target.value)}
+                  onKeyDown={handleKeyDown}
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Completed Section */}
+          {completedItems.length > 0 && (
+            <div className="col-12">
+              <div className="card list-card">
+                <div className="card-body">
+                  <div className="d-flex align-items-center justify-content-between mb-3">
+                    <button
+                      onClick={() => setShowCompleted(!showCompleted)}
+                      className="btn btn-link text-white p-0 d-flex align-items-center"
+                    >
+                      <span className="me-2">Done ({completedItems.length})</span>
+                      <i className={`fas fa-chevron-${showCompleted ? 'up' : 'down'}`}></i>
+                    </button>
+                    <button
+                      onClick={deleteAllCompleted}
+                      className="btn btn-sm btn-outline-danger"
+                    >
+                      Delete all
+                    </button>
+                  </div>
+
+                  {showCompleted && (
+                    <div className="row g-2">
+                      {completedItems.map((item) => (
+                        <div key={item.id} className="col-12">
+                          <div className="d-flex align-items-center py-2">
+                            <button
+                              onClick={() => toggleItem(item.id)}
+                              className="custom-checkbox checked me-3"
+                            >
+                            </button>
+                            <span className="flex-grow-1 text-completed">{item.text}</span>
+                            {!item.isDefault && (
+                              <button
+                                onClick={() => deleteItem(item.id)}
+                                className="btn btn-sm btn-outline-danger ms-2"
+                              >
+                                <i className="fas fa-trash"></i>
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
         </div>
 
+        {/* Empty State */}
         {items.length === 0 && (
-          <div className="text-center text-muted py-5">
-            <CheckCircle2 size={48} className="mx-auto mb-3 opacity-50" />
-            <h5 className="mb-2">No items in your checklist</h5>
-            <p className="small">Add some items above to get started on your travel preparations!</p>
+          <div className="text-center py-5">
+            <div className="btn-circle mx-auto mb-3" style={{ width: '4rem', height: '4rem' }}>
+              <i className="fas fa-plane fs-3"></i>
+            </div>
+            <h5 className="text-white mb-2">No items in your checklist</h5>
+            <p className="text-muted-custom">Add some items above to get started on your travel preparations!</p>
           </div>
         )}
       </div>
 
-      {/* Bootstrap Modal for Reset Confirmation */}
+      {/* Reset Confirmation Modal */}
       {showResetDialog && (
-        <div className="modal fade show d-block" tabIndex={-1} style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
+        <div className="modal show d-block" tabIndex={-1} style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
           <div className="modal-dialog modal-dialog-centered">
-            <div className="modal-content">
-              <div className="modal-header">
-                <h5 className="modal-title">Reset to Default Checklist</h5>
+            <div className="modal-content bg-dark border-0">
+              <div className="modal-header border-secondary">
+                <h5 className="modal-title text-white">Reset to Default Checklist</h5>
                 <button
                   type="button"
-                  className="btn-close"
+                  className="btn-close btn-close-white"
                   onClick={() => setShowResetDialog(false)}
                 ></button>
               </div>
               <div className="modal-body">
-                <p>Are you sure you want to reset to the default checklist? This will remove all custom items and uncheck all items. This action cannot be undone.</p>
+                <p className="text-muted-custom mb-0">
+                  Are you sure you want to reset to the default checklist? This will remove all custom items and uncheck all items. This action cannot be undone.
+                </p>
               </div>
-              <div className="modal-footer">
+              <div className="modal-footer border-secondary">
                 <button
                   type="button"
                   className="btn btn-secondary"
@@ -207,14 +237,14 @@ const TravelChecklist = ({ items, setItems, onReset }: TravelChecklistProps) => 
                   className="btn btn-danger"
                   onClick={handleReset}
                 >
-                  Reset Checklist
+                  Reset
                 </button>
               </div>
             </div>
           </div>
         </div>
       )}
-    </div>
+    </>
   )
 }
 
