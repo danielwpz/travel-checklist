@@ -102,7 +102,7 @@ const ChecklistItemComponent = ({
           <span
             className={`${
               item.checked
-                ? 'text-decoration-line-through text-muted'
+                ? 'text-muted'
                 : 'text-dark'
             } ${editMode ? 'user-select-none' : ''}`}
             style={{ cursor: editMode ? 'pointer' : 'default' }}
