@@ -52,6 +52,10 @@ body {
 .btn-circle {
   width: 2.5rem;
   height: 2.5rem;
+  min-width: 2.5rem;
+  min-height: 2.5rem;
+  max-width: 2.5rem;
+  max-height: 2.5rem;
   border-radius: 50% !important;
   display: flex;
   align-items: center;
@@ -60,6 +64,7 @@ body {
   background-color: var(--bs-gray-700);
   color: #ffffff;
   transition: all 0.2s ease;
+  flex-shrink: 0;
 }
 
 .btn-circle:hover {

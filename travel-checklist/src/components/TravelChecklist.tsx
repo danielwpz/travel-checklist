@@ -131,9 +131,13 @@ const TravelChecklist = ({ items, setItems, onReset }: TravelChecklistProps) => 
           <div className="col-12">
             <div className="card list-item-card">
               <div className="card-body d-flex align-items-center">
-                <div className="btn-circle me-3">
+                <button
+                  onClick={addItem}
+                  className="btn-circle me-3"
+                  title="Add item"
+                >
                   <i className="fas fa-plus"></i>
-                </div>
+                </button>
                 <input
                   type="text"
                   className="form-control"
