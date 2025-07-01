@@ -10,11 +10,15 @@ interface TravelChecklistProps {
 
 const TravelChecklist = ({ items, setItems, onReset }: TravelChecklistProps) => {
   const [newItemText, setNewItemText] = useState('')
-  const [showCompleted, setShowCompleted] = useState(false)
   const [showResetDialog, setShowResetDialog] = useState(false)
 
+  // Sort items: unchecked items first, then checked items at the end
+  const sortedItems = [...items].sort((a, b) => {
+    if (a.checked === b.checked) return 0
+    return a.checked ? 1 : -1
+  })
+
   const activeItems = items.filter(item => !item.checked)
-  const completedItems = items.filter(item => item.checked)
 
   const toggleItem = (id: string) => {
     setItems(items.map(item =>
@@ -46,9 +50,7 @@ const TravelChecklist = ({ items, setItems, onReset }: TravelChecklistProps) => 
     setNewItemText('')
   }
 
-  const deleteAllCompleted = () => {
-    setItems(items.filter(item => !item.checked))
-  }
+
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter') {
@@ -100,25 +102,26 @@ const TravelChecklist = ({ items, setItems, onReset }: TravelChecklistProps) => 
             </div>
           </div>
 
-          {/* Active Items */}
-          {activeItems.map((item) => (
+          {/* All Items (sorted: unchecked first, then checked) */}
+          {sortedItems.map((item) => (
             <div key={item.id} className="col-12">
               <div className="card list-item-card">
                 <div className="card-body d-flex align-items-center">
                   <button
                     onClick={() => toggleItem(item.id)}
-                    className="custom-checkbox me-3"
+                    className={`custom-checkbox me-3 ${item.checked ? 'checked' : ''}`}
                   >
                   </button>
-                  <span className="flex-grow-1 text-white">{item.text}</span>
-                  {!item.isDefault && (
-                    <button
-                      onClick={() => deleteItem(item.id)}
-                      className="btn btn-sm btn-outline-danger ms-2"
-                    >
-                      <i className="fas fa-trash"></i>
-                    </button>
-                  )}
+                  <span className={`flex-grow-1 ${item.checked ? 'text-completed' : 'text-white'}`}>
+                    {item.text}
+                  </span>
+                  <button
+                    onClick={() => deleteItem(item.id)}
+                    className="btn btn-sm btn-outline-danger ms-2"
+                    title="Delete item"
+                  >
+                    <i className="fas fa-trash"></i>
+                  </button>
                 </div>
               </div>
             </div>
@@ -142,56 +145,6 @@ const TravelChecklist = ({ items, setItems, onReset }: TravelChecklistProps) => 
               </div>
             </div>
           </div>
-
-          {/* Completed Section */}
-          {completedItems.length > 0 && (
-            <div className="col-12">
-              <div className="card list-card">
-                <div className="card-body">
-                  <div className="d-flex align-items-center justify-content-between mb-3">
-                    <button
-                      onClick={() => setShowCompleted(!showCompleted)}
-                      className="btn btn-link text-white p-0 d-flex align-items-center"
-                    >
-                      <span className="me-2">Done ({completedItems.length})</span>
-                      <i className={`fas fa-chevron-${showCompleted ? 'up' : 'down'}`}></i>
-                    </button>
-                    <button
-                      onClick={deleteAllCompleted}
-                      className="btn btn-sm btn-outline-danger"
-                    >
-                      Delete all
-                    </button>
-                  </div>
-
-                  {showCompleted && (
-                    <div className="row g-2">
-                      {completedItems.map((item) => (
-                        <div key={item.id} className="col-12">
-                          <div className="d-flex align-items-center py-2">
-                            <button
-                              onClick={() => toggleItem(item.id)}
-                              className="custom-checkbox checked me-3"
-                            >
-                            </button>
-                            <span className="flex-grow-1 text-completed">{item.text}</span>
-                            {!item.isDefault && (
-                              <button
-                                onClick={() => deleteItem(item.id)}
-                                className="btn btn-sm btn-outline-danger ms-2"
-                              >
-                                <i className="fas fa-trash"></i>
-                              </button>
-                            )}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
-          )}
         </div>
 
         {/* Empty State */}
