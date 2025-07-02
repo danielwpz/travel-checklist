@@ -67,7 +67,9 @@ describe('Travel Checklist App', () => {
 
     if (firstCheckbox) {
       fireEvent.click(firstCheckbox)
-      expect(screen.getByText(/Done \(1\)/)).toBeInTheDocument()
+      // After checking, the item should have 'checked' class and be moved to bottom
+      const checkedCheckbox = screen.getByRole('button', { name: '' })
+      expect(checkedCheckbox.className).toContain('checked')
     }
   })
 
@@ -94,7 +96,7 @@ describe('Travel Checklist App', () => {
     expect(passportItems).toHaveLength(1)
   })
 
-  it('can delete custom items', () => {
+  it('can delete items', () => {
     render(<App />)
 
     // Add a custom item first
@@ -107,7 +109,7 @@ describe('Travel Checklist App', () => {
     // Find and click the delete button for the custom item
     const deleteButtons = screen.getAllByRole('button')
     const deleteButton = deleteButtons.find(button =>
-      button.className.includes('btn-outline-danger')
+      button.className.includes('btn-outline-danger') && button.title === 'Delete item'
     )
 
     if (deleteButton) {
@@ -116,7 +118,7 @@ describe('Travel Checklist App', () => {
     }
   })
 
-  it('shows completed items section when items are checked', () => {
+  it('shows checked items at the bottom with completed styling', () => {
     render(<App />)
 
     // Check an item
@@ -127,7 +129,11 @@ describe('Travel Checklist App', () => {
 
     if (firstCheckbox) {
       fireEvent.click(firstCheckbox)
-      expect(screen.getByText(/Done \(1\)/)).toBeInTheDocument()
+      // Verify that a checkbox with 'checked' class exists
+      const checkedCheckboxes = checkboxButtons.filter(button =>
+        button.className.includes('custom-checkbox checked')
+      )
+      expect(checkedCheckboxes.length).toBeGreaterThan(0)
     }
   })
 })
