@@ -3,6 +3,12 @@ export interface ChecklistItem {
   text: string;
   checked: boolean;
   isDefault: boolean;
+  timer?: {
+    type: 'countdown' | 'deadline';
+    value: number | string; // minutes for countdown, ISO string for deadline
+    label: string;
+    createdAt: string; // ISO string for when timer was set
+  };
 }
 
 export const DEFAULT_ITEMS: ChecklistItem[] = [

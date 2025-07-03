@@ -1,6 +1,8 @@
 
 import { useState } from 'react'
 import { type ChecklistItem } from '../types'
+import TimerForm from './TimerForm'
+import TimerDisplay from './TimerDisplay'
 
 interface TravelChecklistProps {
   items: ChecklistItem[]
@@ -11,6 +13,12 @@ interface TravelChecklistProps {
 const TravelChecklist = ({ items, setItems, onReset }: TravelChecklistProps) => {
   const [newItemText, setNewItemText] = useState('')
   const [showResetDialog, setShowResetDialog] = useState(false)
+  const [newItemTimer, setNewItemTimer] = useState<{
+    type: 'countdown' | 'deadline';
+    value: number | string;
+    label: string;
+    createdAt: string;
+  } | null>(null)
 
   // Sort items: unchecked items first, then checked items at the end
   const sortedItems = [...items].sort((a, b) => {
@@ -43,11 +51,13 @@ const TravelChecklist = ({ items, setItems, onReset }: TravelChecklistProps) => 
       id: `custom-${Date.now()}`,
       text: trimmedText,
       checked: false,
-      isDefault: false
+      isDefault: false,
+      timer: newItemTimer || undefined
     }
 
     setItems([...items, newItem])
     setNewItemText('')
+    setNewItemTimer(null)
   }
 
 
@@ -112,9 +122,16 @@ const TravelChecklist = ({ items, setItems, onReset }: TravelChecklistProps) => 
                     className={`custom-checkbox me-3 ${item.checked ? 'checked' : ''}`}
                   >
                   </button>
-                  <span className={`flex-grow-1 ${item.checked ? 'text-completed' : 'text-white'}`}>
-                    {item.text}
-                  </span>
+                  <div className="flex-grow-1">
+                    <span className={`${item.checked ? 'text-completed' : 'text-white'}`}>
+                      {item.text}
+                    </span>
+                    {item.timer && (
+                      <div className="mt-1">
+                        <TimerDisplay item={item} />
+                      </div>
+                    )}
+                  </div>
                   <button
                     onClick={() => deleteItem(item.id)}
                     className="btn btn-sm btn-outline-danger ms-2"
@@ -130,22 +147,30 @@ const TravelChecklist = ({ items, setItems, onReset }: TravelChecklistProps) => 
           {/* Add Item Input */}
           <div className="col-12">
             <div className="card list-item-card">
-              <div className="card-body d-flex align-items-center">
-                <button
-                  onClick={addItem}
-                  className="btn-circle me-3"
-                  title="Add item"
-                >
-                  <i className="fas fa-plus"></i>
-                </button>
-                <input
-                  type="text"
-                  className="form-control"
-                  placeholder="Add a new item..."
-                  value={newItemText}
-                  onChange={(e) => setNewItemText(e.target.value)}
-                  onKeyDown={handleKeyDown}
-                />
+              <div className="card-body">
+                <div className="d-flex align-items-center">
+                  <button
+                    onClick={addItem}
+                    className="btn-circle me-3"
+                    title="Add item"
+                  >
+                    <i className="fas fa-plus"></i>
+                  </button>
+                  <input
+                    type="text"
+                    className="form-control"
+                    placeholder="Add a new item..."
+                    value={newItemText}
+                    onChange={(e) => setNewItemText(e.target.value)}
+                    onKeyDown={handleKeyDown}
+                  />
+                </div>
+                <div className="mt-2">
+                  <TimerForm
+                    onSetTimer={setNewItemTimer}
+                    initialTimer={newItemTimer}
+                  />
+                </div>
               </div>
             </div>
           </div>
