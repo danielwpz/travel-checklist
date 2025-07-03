@@ -136,6 +136,28 @@ describe('Travel Checklist App', () => {
       expect(checkedCheckboxes.length).toBeGreaterThan(0)
     }
   })
+
+  it('positions the "Add New Item" button on the right side of the input', () => {
+    render(<App />)
+
+    // Find the add item button and input field
+    const addButton = screen.getByTitle('Add item')
+    const input = screen.getByPlaceholderText('Add a new item...')
+
+    // Verify the button has the correct margin class for right positioning
+    expect(addButton.className).toContain('ms-3')
+    expect(addButton.className).not.toContain('me-3')
+
+    // Verify both elements exist
+    expect(addButton).toBeInTheDocument()
+    expect(input).toBeInTheDocument()
+
+    // Test that the button still functions correctly when positioned on the right
+    fireEvent.change(input, { target: { value: 'Test item from right button' } })
+    fireEvent.click(addButton)
+
+    expect(screen.getByText('Test item from right button')).toBeInTheDocument()
+  })
 })
 
 
