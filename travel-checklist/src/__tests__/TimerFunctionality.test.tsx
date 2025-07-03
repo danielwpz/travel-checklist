@@ -43,7 +43,7 @@ describe('Timer Functionality', () => {
     expect(screen.getByText('Deadline')).toBeInTheDocument()
 
     // Fill in timer details
-    const descriptionInput = screen.getByLabelText('Description')
+    const descriptionInput = screen.getByLabelText('Description (optional)')
     fireEvent.change(descriptionInput, { target: { value: 'before departure' } })
 
     // Set timer
@@ -67,7 +67,7 @@ describe('Timer Functionality', () => {
     const setTimerButton = screen.getByText('Set Timer')
     fireEvent.click(setTimerButton)
 
-    const descriptionInput = screen.getByLabelText('Description')
+    const descriptionInput = screen.getByLabelText('Description (optional)')
     fireEvent.change(descriptionInput, { target: { value: 'before departure' } })
 
     const setTimerFormButton = screen.getByRole('button', { name: 'Set Timer' })
@@ -108,27 +108,27 @@ describe('Timer Functionality', () => {
     expect(screen.getByLabelText('Deadline date and time')).toBeInTheDocument()
   })
 
-  it('validates timer form - requires description', () => {
+  it('validates timer form - description is optional', () => {
     render(<App />)
 
     // Open timer form
     const setTimerButton = screen.getByText('Set Timer')
     fireEvent.click(setTimerButton)
 
-    // Try to set timer without description
+    // Timer button should be enabled even without description (since description is optional)
     const setTimerFormButton = screen.getByRole('button', { name: 'Set Timer' })
-    expect(setTimerFormButton).toBeDisabled()
+    expect(setTimerFormButton).not.toBeDisabled()
 
     // Add description
-    const descriptionInput = screen.getByLabelText('Description')
+    const descriptionInput = screen.getByLabelText('Description (optional)')
     fireEvent.change(descriptionInput, { target: { value: 'test description' } })
 
-    // Button should now be enabled
+    // Button should still be enabled
     expect(setTimerFormButton).not.toBeDisabled()
   })
 
   it('can cancel timer form', () => {
-    render(<App />)
+    const { container } = render(<App />)
 
     // Open timer form
     const setTimerButton = screen.getByText('Set Timer')
@@ -137,9 +137,10 @@ describe('Timer Functionality', () => {
     // Check form is open
     expect(screen.getByText('Timer Type')).toBeInTheDocument()
 
-    // Cancel form
-    const cancelButton = screen.getByRole('button', { name: '' }) // X button
-    fireEvent.click(cancelButton)
+    // Cancel form - find the X button within the timer form
+    const cancelButton = container.querySelector('.btn-outline-secondary')
+    expect(cancelButton).toBeInTheDocument()
+    fireEvent.click(cancelButton!)
 
     // Form should be closed
     expect(screen.queryByText('Timer Type')).not.toBeInTheDocument()
@@ -160,7 +161,7 @@ describe('Timer Functionality', () => {
     const minutesInput = screen.getByLabelText('Minutes from now')
     fireEvent.change(minutesInput, { target: { value: '1' } })
 
-    const descriptionInput = screen.getByLabelText('Description')
+    const descriptionInput = screen.getByLabelText('Description (optional)')
     fireEvent.change(descriptionInput, { target: { value: 'test timer' } })
 
     const setTimerFormButton = screen.getByRole('button', { name: 'Set Timer' })
@@ -180,6 +181,38 @@ describe('Timer Functionality', () => {
     })
   })
 
+  it('can set timer without description and uses default label', async () => {
+    render(<App />)
+
+    // Add item text
+    const input = screen.getByPlaceholderText('Add a new item...')
+    fireEvent.change(input, { target: { value: 'Test item without description' } })
+
+    // Set timer without description
+    const setTimerButton = screen.getByText('Set Timer')
+    fireEvent.click(setTimerButton)
+
+    // Set minutes but leave description empty
+    const minutesInput = screen.getByLabelText('Minutes from now')
+    fireEvent.change(minutesInput, { target: { value: '30' } })
+
+    // Button should be enabled even without description
+    const setTimerFormButton = screen.getByRole('button', { name: 'Set Timer' })
+    expect(setTimerFormButton).not.toBeDisabled()
+
+    fireEvent.click(setTimerFormButton)
+
+    // Add the item
+    const addButton = screen.getByTitle('Add item')
+    fireEvent.click(addButton)
+
+    // Check if item is added with default timer label
+    await waitFor(() => {
+      expect(screen.getByText('Test item without description')).toBeInTheDocument()
+      expect(screen.getByText('(30 minutes from now)')).toBeInTheDocument()
+    })
+  })
+
   it('persists timer data in localStorage', async () => {
     render(<App />)
 
@@ -190,7 +223,7 @@ describe('Timer Functionality', () => {
     const setTimerButton = screen.getByText('Set Timer')
     fireEvent.click(setTimerButton)
 
-    const descriptionInput = screen.getByLabelText('Description')
+    const descriptionInput = screen.getByLabelText('Description (optional)')
     fireEvent.change(descriptionInput, { target: { value: 'persistent timer' } })
 
     const setTimerFormButton = screen.getByRole('button', { name: 'Set Timer' })

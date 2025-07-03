@@ -38,12 +38,15 @@ const TimerForm = ({ onSetTimer, initialTimer }: TimerFormProps) => {
   const [timerLabel, setTimerLabel] = useState(initialTimer?.label || '');
 
   const handleSetTimer = () => {
-    if (!timerLabel.trim()) return;
+    // Generate a default label if none is provided
+    const defaultLabel = timerType === 'countdown'
+      ? `${countdownMinutes} minutes from now`
+      : `by ${new Date(deadlineDate).toLocaleDateString()} ${new Date(deadlineDate).toLocaleTimeString()}`;
 
     const timer = {
       type: timerType,
       value: timerType === 'countdown' ? countdownMinutes : deadlineDate,
-      label: timerLabel.trim(),
+      label: timerLabel.trim() || defaultLabel,
       createdAt: new Date().toISOString(),
     };
 
@@ -154,7 +157,7 @@ const TimerForm = ({ onSetTimer, initialTimer }: TimerFormProps) => {
 
       <div className="mb-3">
         <label htmlFor="timerLabel" className="form-label">
-          Description
+          Description (optional)
         </label>
         <input
           type="text"
@@ -162,7 +165,7 @@ const TimerForm = ({ onSetTimer, initialTimer }: TimerFormProps) => {
           id="timerLabel"
           value={timerLabel}
           onChange={(e) => setTimerLabel(e.target.value)}
-          placeholder="e.g., 'before departure', 'by evening'"
+          placeholder="e.g., 'before departure', 'by evening' (optional)"
         />
       </div>
 
@@ -171,7 +174,7 @@ const TimerForm = ({ onSetTimer, initialTimer }: TimerFormProps) => {
           type="button"
           onClick={handleSetTimer}
           className="btn btn-primary btn-sm"
-          disabled={!timerLabel.trim()}
+          disabled={timerType === 'countdown' ? countdownMinutes < 1 : !deadlineDate}
         >
           Set Timer
         </button>
