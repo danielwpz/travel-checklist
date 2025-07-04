@@ -34,11 +34,11 @@ describe('Travel Checklist App', () => {
     render(<App />)
 
     expect(screen.getByText('Travel checklist')).toBeInTheDocument()
-    expect(screen.getByText('Passport')).toBeInTheDocument()
-    expect(screen.getByText('Toothbrush')).toBeInTheDocument()
-    expect(screen.getByText('Phone charger')).toBeInTheDocument()
-    expect(screen.getByText('Sunglasses')).toBeInTheDocument()
-    expect(screen.getByText('Camera')).toBeInTheDocument()
+    expect(screen.getByText(/📘\s+Passport/)).toBeInTheDocument()
+    expect(screen.getByText(/🪥\s+Toothbrush/)).toBeInTheDocument()
+    expect(screen.getByText(/🔌\s+Phone charger/)).toBeInTheDocument()
+    expect(screen.getByText(/🕶️\s+Sunglasses/)).toBeInTheDocument()
+    expect(screen.getByText(/📷\s+Camera/)).toBeInTheDocument()
   })
 
   it('shows correct item count', () => {
@@ -53,7 +53,7 @@ describe('Travel Checklist App', () => {
     fireEvent.change(input, { target: { value: 'Travel pillow' } })
     fireEvent.keyDown(input, { key: 'Enter', code: 'Enter' })
 
-    expect(screen.getByText('Travel pillow')).toBeInTheDocument()
+    expect(screen.getByText(/🛏️\s+Travel pillow/)).toBeInTheDocument()
   })
 
   it('can check items in the checklist', () => {
@@ -91,8 +91,8 @@ describe('Travel Checklist App', () => {
     fireEvent.change(input, { target: { value: 'Passport' } })
     fireEvent.keyDown(input, { key: 'Enter', code: 'Enter' })
 
-    // Should still only have one "Passport" item
-    const passportItems = screen.getAllByText('Passport')
+    // Should still only have one "Passport" item (with emoji)
+    const passportItems = screen.getAllByText(/📘\s+Passport/)
     expect(passportItems).toHaveLength(1)
   })
 
@@ -104,7 +104,7 @@ describe('Travel Checklist App', () => {
     fireEvent.change(input, { target: { value: 'Custom item' } })
     fireEvent.keyDown(input, { key: 'Enter', code: 'Enter' })
 
-    expect(screen.getByText('Custom item')).toBeInTheDocument()
+    expect(screen.getByText(/🧳\s+Custom item/)).toBeInTheDocument()
 
     // Find and click the delete button for the custom item
     const deleteButtons = screen.getAllByRole('button')
@@ -114,7 +114,7 @@ describe('Travel Checklist App', () => {
 
     if (deleteButton) {
       fireEvent.click(deleteButton)
-      expect(screen.queryByText('Custom item')).not.toBeInTheDocument()
+      expect(screen.queryByText(/🧳\s+Custom item/)).not.toBeInTheDocument()
     }
   })
 
@@ -135,6 +135,53 @@ describe('Travel Checklist App', () => {
       )
       expect(checkedCheckboxes.length).toBeGreaterThan(0)
     }
+  })
+
+  it('displays emojis for default items', () => {
+    render(<App />)
+
+    // Check that default items have their assigned emojis
+    expect(screen.getByText(/📘\s+Passport/)).toBeInTheDocument()
+    expect(screen.getByText(/🪥\s+Toothbrush/)).toBeInTheDocument()
+    expect(screen.getByText(/🔌\s+Phone charger/)).toBeInTheDocument()
+    expect(screen.getByText(/🕶️\s+Sunglasses/)).toBeInTheDocument()
+    expect(screen.getByText(/📷\s+Camera/)).toBeInTheDocument()
+    expect(screen.getByText(/📋\s+Travel insurance/)).toBeInTheDocument()
+    expect(screen.getByText(/💊\s+Medications/)).toBeInTheDocument()
+    expect(screen.getByText(/👟\s+Comfortable shoes/)).toBeInTheDocument()
+    expect(screen.getByText(/🔌\s+Travel adapter/)).toBeInTheDocument()
+    expect(screen.getByText(/👕\s+Clothes for weather/)).toBeInTheDocument()
+  })
+
+  it('assigns appropriate emojis to new items based on keywords', () => {
+    render(<App />)
+
+    const input = screen.getByPlaceholderText('Add a new item...')
+
+    // Test phone-related item
+    fireEvent.change(input, { target: { value: 'iPhone' } })
+    fireEvent.keyDown(input, { key: 'Enter', code: 'Enter' })
+    expect(screen.getByText(/📱\s+iPhone/)).toBeInTheDocument()
+
+    // Test clothing item
+    fireEvent.change(input, { target: { value: 'T-shirt' } })
+    fireEvent.keyDown(input, { key: 'Enter', code: 'Enter' })
+    expect(screen.getByText(/👕\s+T-shirt/)).toBeInTheDocument()
+
+    // Test book item
+    fireEvent.change(input, { target: { value: 'Travel book' } })
+    fireEvent.keyDown(input, { key: 'Enter', code: 'Enter' })
+    expect(screen.getByText(/📖\s+Travel book/)).toBeInTheDocument()
+  })
+
+  it('uses default emoji for unknown items', () => {
+    render(<App />)
+
+    const input = screen.getByPlaceholderText('Add a new item...')
+    fireEvent.change(input, { target: { value: 'Unknown mysterious item' } })
+    fireEvent.keyDown(input, { key: 'Enter', code: 'Enter' })
+
+    expect(screen.getByText(/🧳\s+Unknown mysterious item/)).toBeInTheDocument()
   })
 })
 
