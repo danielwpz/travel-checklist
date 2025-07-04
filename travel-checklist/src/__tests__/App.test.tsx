@@ -1,4 +1,23 @@
 
+import { render, screen } from '@testing-library/react';
+import TravelChecklist from '../components/TravelChecklist';
+import { ChecklistItem } from '../types';
+
+
+test('renders Add New Item button at the top right', () => {
+  const items: ChecklistItem[] = [];
+  const setItems = jest.fn();
+  const onReset = jest.fn();
+
+  render(<TravelChecklist items={items} setItems={setItems} onReset={onReset} />);
+
+  const addButton = screen.getByTitle('Add item');
+  expect(addButton).toBeInTheDocument();
+  expect(addButton).toHaveClass('btn-circle');
+  expect(addButton).toHaveStyle('margin-left: auto');
+  expect(addButton).toHaveAttribute('title', 'Add item');
+});
+
 
 import { render, screen, fireEvent } from '@testing-library/react'
 import { describe, it, expect, beforeEach, vi } from 'vitest'
