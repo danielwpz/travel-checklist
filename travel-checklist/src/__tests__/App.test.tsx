@@ -136,6 +136,50 @@ describe('Travel Checklist App', () => {
       expect(checkedCheckboxes.length).toBeGreaterThan(0)
     }
   })
+
+  it('positions the add item button on the right side of the input field', () => {
+    render(<App />)
+
+    // Find the add item input and button
+    const input = screen.getByPlaceholderText('Add a new item...')
+    const addButton = screen.getByTitle('Add item')
+
+    // Get their parent container
+    const inputParent = input.parentElement
+    const buttonParent = addButton.parentElement
+
+    // They should be in the same container
+    expect(inputParent).toBe(buttonParent)
+
+    // The button should have 'ms-3' class (margin-start) indicating it's positioned after the input
+    expect(addButton.className).toContain('ms-3')
+
+    // The input should not have 'ms-3' class
+    expect(input.className).not.toContain('ms-3')
+  })
+
+  it('places the add item section at the top of the list', () => {
+    render(<App />)
+
+    // Find the add item input
+    const input = screen.getByPlaceholderText('Add a new item...')
+
+    // Find the first checklist item (Passport)
+    const firstItem = screen.getByText('Passport')
+
+    // Get their positions in the DOM
+    const inputContainer = input.closest('.col-12')
+    const itemContainer = firstItem.closest('.col-12')
+
+    // The input container should come before the first item container in the DOM
+    if (inputContainer && itemContainer && inputContainer.parentElement && itemContainer.parentElement) {
+      const children = Array.from(inputContainer.parentElement.children)
+      const inputIndex = children.indexOf(inputContainer)
+      const itemIndex = children.indexOf(itemContainer)
+
+      expect(inputIndex).toBeLessThan(itemIndex)
+    }
+  })
 })
 
 
