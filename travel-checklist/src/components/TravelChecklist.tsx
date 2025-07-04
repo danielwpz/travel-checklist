@@ -1,6 +1,7 @@
 
 import { useState } from 'react'
 import { type ChecklistItem } from '../types'
+import { ensureItemHasEmoji, getEmojiForItem } from '../utils/emojiUtils'
 
 interface TravelChecklistProps {
   items: ChecklistItem[]
@@ -43,7 +44,8 @@ const TravelChecklist = ({ items, setItems, onReset }: TravelChecklistProps) => 
       id: `custom-${Date.now()}`,
       text: trimmedText,
       checked: false,
-      isDefault: false
+      isDefault: false,
+      emoji: getEmojiForItem(trimmedText)
     }
 
     setItems([...items, newItem])
@@ -113,7 +115,7 @@ const TravelChecklist = ({ items, setItems, onReset }: TravelChecklistProps) => 
                   >
                   </button>
                   <span className={`flex-grow-1 ${item.checked ? 'text-completed' : 'text-white'}`}>
-                    {item.text}
+                    {ensureItemHasEmoji(item)} {item.text}
                   </span>
                   <button
                     onClick={() => deleteItem(item.id)}
