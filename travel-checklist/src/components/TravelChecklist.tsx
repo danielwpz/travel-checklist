@@ -87,7 +87,7 @@ const TravelChecklist = ({ items, setItems, onReset }: TravelChecklistProps) => 
           <div className="col-12">
             <div className="card list-card">
               <div className="card-body d-flex align-items-center">
-                <div className="d-flex align-items-center flex-grow-1">
+                <div className="d-flex align-items-center flex-grow-1 justify-content-between">
                   <div className="btn-circle me-3" style={{ backgroundColor: '#007bff' }}>
                     <i className="fas fa-plane"></i>
                   </div>
