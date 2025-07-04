@@ -102,6 +102,29 @@ const TravelChecklist = ({ items, setItems, onReset }: TravelChecklistProps) => 
             </div>
           </div>
 
+          {/* Add Item Input */}
+          <div className="col-12">
+            <div className="card list-item-card">
+              <div className="card-body d-flex align-items-center">
+                <input
+                  type="text"
+                  className="form-control"
+                  placeholder="Add a new item..."
+                  value={newItemText}
+                  onChange={(e) => setNewItemText(e.target.value)}
+                  onKeyDown={handleKeyDown}
+                />
+                <button
+                  onClick={addItem}
+                  className="btn-circle ms-3"
+                  title="Add item"
+                >
+                  <i className="fas fa-plus"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+
           {/* All Items (sorted: unchecked first, then checked) */}
           {sortedItems.map((item) => (
             <div key={item.id} className="col-12">
@@ -126,29 +149,6 @@ const TravelChecklist = ({ items, setItems, onReset }: TravelChecklistProps) => 
               </div>
             </div>
           ))}
-
-          {/* Add Item Input */}
-          <div className="col-12">
-            <div className="card list-item-card">
-              <div className="card-body d-flex align-items-center">
-                <button
-                  onClick={addItem}
-                  className="btn-circle me-3"
-                  title="Add item"
-                >
-                  <i className="fas fa-plus"></i>
-                </button>
-                <input
-                  type="text"
-                  className="form-control"
-                  placeholder="Add a new item..."
-                  value={newItemText}
-                  onChange={(e) => setNewItemText(e.target.value)}
-                  onKeyDown={handleKeyDown}
-                />
-              </div>
-            </div>
-          </div>
         </div>
 
         {/* Empty State */}
