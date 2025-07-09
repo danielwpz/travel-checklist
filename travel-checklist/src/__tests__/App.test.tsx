@@ -68,8 +68,10 @@ describe('Travel Checklist App', () => {
     if (firstCheckbox) {
       fireEvent.click(firstCheckbox)
       // After checking, the item should have 'checked' class and be moved to bottom
-      const checkedCheckbox = screen.getByRole('button', { name: '' })
-      expect(checkedCheckbox.className).toContain('checked')
+      const checkedCheckboxes = checkboxButtons.filter(button =>
+        button.className.includes('custom-checkbox') && button.className.includes('checked')
+      )
+      expect(checkedCheckboxes.length).toBeGreaterThan(0)
     }
   })
 
@@ -107,15 +109,11 @@ describe('Travel Checklist App', () => {
     expect(screen.getByText(/🧳\s+Custom item/)).toBeInTheDocument()
 
     // Find and click the delete button for the custom item
-    const deleteButtons = screen.getAllByRole('button')
-    const deleteButton = deleteButtons.find(button =>
-      button.className.includes('btn-outline-danger') && button.title === 'Delete item'
-    )
+    const deleteButtons = screen.getAllByTitle('Delete item')
+    const deleteButton = deleteButtons[deleteButtons.length - 1] // Get the last delete button (for the newly added item)
 
-    if (deleteButton) {
-      fireEvent.click(deleteButton)
-      expect(screen.queryByText(/🧳\s+Custom item/)).not.toBeInTheDocument()
-    }
+    fireEvent.click(deleteButton)
+    expect(screen.queryByText(/🧳\s+Custom item/)).not.toBeInTheDocument()
   })
 
   it('shows checked items at the bottom with completed styling', () => {
@@ -129,9 +127,11 @@ describe('Travel Checklist App', () => {
 
     if (firstCheckbox) {
       fireEvent.click(firstCheckbox)
+      // Re-query the buttons after the state change
+      const updatedCheckboxButtons = screen.getAllByRole('button')
       // Verify that a checkbox with 'checked' class exists
-      const checkedCheckboxes = checkboxButtons.filter(button =>
-        button.className.includes('custom-checkbox checked')
+      const checkedCheckboxes = updatedCheckboxButtons.filter(button =>
+        button.className.includes('custom-checkbox') && button.className.includes('checked')
       )
       expect(checkedCheckboxes.length).toBeGreaterThan(0)
     }
