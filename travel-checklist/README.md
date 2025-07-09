@@ -7,13 +7,16 @@ A modern, interactive travel checklist application built with React, TypeScript,
 This application provides a user-friendly interface for managing your travel checklist. It comes with a set of default essential items and allows you to add custom items, check them off as you pack, and maintains your progress using local storage.
 
 ### Default Items Include:
-- Passport
-- Toothbrush
-- Phone charger
-- Clothes
-- Sunglasses
-- Travel adapter
-- Snacks
+- 📘 Passport
+- 🪥 Toothbrush
+- 🔌 Phone charger
+- 🕶️ Sunglasses
+- 📷 Camera
+- 📋 Travel insurance
+- 💊 Medications
+- 👟 Comfortable shoes
+- 🔌 Travel adapter
+- 👕 Clothes for weather
 
 ## Tech Stack
 
