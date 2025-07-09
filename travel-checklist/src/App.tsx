@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { type ChecklistItem, DEFAULT_ITEMS } from './types'
 import TravelChecklist from './components/TravelChecklist'
+import { getEmojiForItem } from './utils/emojiUtils'
 
 function App() {
   const [items, setItems] = useState<ChecklistItem[]>([])
@@ -10,7 +11,8 @@ function App() {
     const savedItems = localStorage.getItem('travel-checklist-items')
     if (savedItems) {
       try {
-        setItems(JSON.parse(savedItems))
+        const parsedItems = JSON.parse(savedItems)
+        setItems(ensureItemsHaveEmojis(parsedItems))
       } catch (error) {
         console.error('Error parsing saved items:', error)
         initializeDefaultItems()
@@ -29,6 +31,14 @@ function App() {
 
   const initializeDefaultItems = () => {
     setItems(DEFAULT_ITEMS)
+  }
+
+  // Ensure all items have emojis for backward compatibility
+  const ensureItemsHaveEmojis = (items: ChecklistItem[]): ChecklistItem[] => {
+    return items.map(item => ({
+      ...item,
+      emoji: item.emoji || getEmojiForItem(item.text)
+    }))
   }
 
   const handleReset = () => {
